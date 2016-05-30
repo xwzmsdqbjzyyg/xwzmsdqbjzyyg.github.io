@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>我的博客</title>
+  <subtitle>一天进步一点</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://xwzmsdqbjzyyg.github.io/"/>
+  <updated>2016-05-25T09:05:47.868Z</updated>
+  <id>http://xwzmsdqbjzyyg.github.io/</id>
+  
+  <author>
+    <name>陈长生</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>thinkphp 单字母函数</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/05/25/thinkphp-01/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/05/25/thinkphp-01/</id>
+    <published>2016-05-25T09:00:58.000Z</published>
+    <updated>2016-05-25T09:05:47.868Z</updated>
+    
+    <content type="html">&lt;p&gt;在ThinkPHP中有许多使用简便的单字母函数（即快捷方法），可以很方便开发者快速的调用，但是字母函数却不方便记忆，本文将所有的字母函数总结一下，以方便以后查找。&lt;/p&gt;
+&lt;p&gt;1.U() URL组装 支持不同URL模式&lt;br&gt;U($url=’’,$vars=’’,$suffix=true,$domain=false)&lt;/p&gt;
+&lt;p&gt;  @param string $url URL表达式，格式：’[模块/控制器/操作#锚点@域名]?参数1=值1&amp;amp;参数2=值2…’&lt;br&gt;  @param string|array $vars 传入的参数，支持数组和字符串&lt;br&gt;  @param string $suffix 伪静态后缀，默认为true表示获取配置值&lt;br&gt;  @param boolean $domain 是否显示域名&lt;br&gt;  @return string&lt;/p&gt;
+&lt;p&gt;2.D() D函数用于实例化模型类 格式 [资源://][模块/]模型&lt;br&gt;D($name=’’,$layer=’’)&lt;/p&gt;
+&lt;p&gt;  @param string $name 资源地址&lt;br&gt;  @param string $layer 模型层名称&lt;br&gt;  @return Model&lt;/p&gt;
+&lt;p&gt;3.M() M函数用于实例化一个没有模型文件的Model&lt;br&gt;M($name=’’,$tablePrefix=’’,$connection=’’)&lt;br&gt;  @param string $name Model名称 支持指定基础模型 例如MongoModel:User&lt;br&gt;  @param string $tablePrefix 表前缀&lt;br&gt;  @param mixed $connection 数据库连接信息&lt;br&gt;  @return Model&lt;/p&gt;
+&lt;p&gt;4.I() 获取输入参数 支持过滤和默认值&lt;br&gt;I($name,$default=’’,$filter=null)&lt;br&gt;  使用方法:&lt;/p&gt;
+&lt;p&gt;I(‘id’,0); //获取id参数 自动判断get或者post&lt;br&gt;I(‘post.name’,’’,’htmlspecialchars’); //获取$_POST[‘name’]&lt;br&gt;I(‘get.’); //获取$_GET&lt;/p&gt;
+&lt;p&gt;5.B() 执行某个行为&lt;br&gt;B($name,$tag=’’,&amp;amp;$params=NULL)&lt;br&gt;  @param string $name 行为名称&lt;br&gt;  @param string $tag 标签名称（行为类无需传入）&lt;br&gt;  @param Mixed $params 传入的参数&lt;br&gt;  @return void&lt;/p&gt;
+&lt;p&gt;6.C() 读取及设置配置参数&lt;br&gt;C($name=null,$value=null,$default=null)&lt;/p&gt;
+&lt;p&gt;  @param string|array $name 配置变量&lt;br&gt;  @param mixed $value 配置值&lt;br&gt;  @param mixed $default 默认值&lt;br&gt;  @return mixed&lt;/p&gt;
+&lt;p&gt;7.E() 抛出异常处理&lt;br&gt;E($msg, $code=0)&lt;/p&gt;
+&lt;p&gt;  @param string $msg 异常消息&lt;br&gt;  @param integer $code 异常代码 默认为0&lt;br&gt;  @return void&lt;/p&gt;
+&lt;p&gt;8.G() 记录和统计时间（微秒）和内存使用情况&lt;br&gt;G($start,$end=’’,$dec=4)&lt;/p&gt;
+&lt;p&gt;  使用方法:&lt;br&gt;G(‘begin’); // 记录开始标记位&lt;br&gt;// … 区间运行代码&lt;br&gt;G(‘end’); // 记录结束标签位&lt;br&gt;echo G(‘begin’,’end’,6); //统计区间运行时间 精确到小数后6位&lt;br&gt;echo G(‘begin’,’end’,’m’); // 统计区间内存使用情况&lt;/p&gt;
+&lt;p&gt;  如果end标记位没有定义，则会自动以当前作为标记位&lt;br&gt;  其中统计内存使用需要 MEMORY_LIMIT_ON 常量为true才有效&lt;br&gt;  @param string $start 开始标签&lt;br&gt;  @param string $end 结束标签&lt;br&gt;  @param integer|string $dec 小数位或者m&lt;br&gt;  @return mixed&lt;/p&gt;
+&lt;p&gt;9.L()获取和设置语言定义(不区分大小写)&lt;br&gt;L($name=null,$value=null)&lt;/p&gt;
+&lt;p&gt;  @param string|array $name 语言变量&lt;br&gt;  @param mixed $value 语言值或者变量&lt;br&gt;  @return mixed&lt;/p&gt;
+&lt;p&gt;10.T()获取模版文件 格式 资源://模块@主题/控制器/操作&lt;br&gt;T($template=’’,$layer=’’)&lt;/p&gt;
+&lt;p&gt;  @param string $name 模版资源地址&lt;br&gt;  @param string $layer 视图层（目录）名称&lt;br&gt;  @return string&lt;/p&gt;
+&lt;p&gt;11.N() 设置和获取统计数据&lt;br&gt;N($key,$step=0,$save=false)&lt;/p&gt;
+&lt;p&gt;  使用方法:&lt;br&gt;N(‘db’,1); // 记录数据库操作次数&lt;br&gt;N(‘read’,1); // 记录读取次数&lt;br&gt;echo N(‘db’); // 获取当前页面数据库的所有操作次数&lt;br&gt;echo N(‘read’); // 获取当前页面读取次数&lt;/p&gt;
+&lt;p&gt;  @param string $key 标识位置&lt;br&gt;  @param integer $step 步进值&lt;br&gt;  @return mixed&lt;/p&gt;
+&lt;p&gt;12.A()A函数用于实例化控制器&lt;/p&gt;
+&lt;p&gt;格式：[资源://][模块/]控制器&lt;br&gt;A($name,$layer=’’,$level=’’)&lt;/p&gt;
+&lt;p&gt;  @param string $name 资源地址&lt;br&gt;  @param string $layer 控制层名称&lt;br&gt;  @param integer $level 控制器层次&lt;br&gt;  @return Controller|false&lt;/p&gt;
+&lt;p&gt;13.R() 远程调用控制器的操作方法&lt;/p&gt;
+&lt;p&gt;URL 参数格式 [资源://][模块/]控制器/操作&lt;br&gt;R($url,$vars=array(),$layer=’’)&lt;/p&gt;
+&lt;p&gt;  @param string $url 调用地址&lt;br&gt;  @param string|array $vars 调用参数 支持字符串和数组&lt;br&gt;  @param string $layer 要调用的控制层名称&lt;br&gt;  @return mixed&lt;/p&gt;
+&lt;p&gt;14.W()渲染输出Widget&lt;br&gt;W($name,$data=array())&lt;/p&gt;
+&lt;p&gt;  @param string $name Widget名称&lt;br&gt;  @param array $data 传入的参数&lt;br&gt;  @return void&lt;/p&gt;
+&lt;p&gt;15.S()缓存管理&lt;br&gt;S($name,$value=’’,$options=null)&lt;/p&gt;
+&lt;p&gt;  @param mixed $name 缓存名称，如果为数组表示进行缓存设置&lt;br&gt;  @param mixed $value 缓存值&lt;br&gt;  @param mixed $options 缓存参数&lt;br&gt;  @return mixed&lt;/p&gt;
+&lt;p&gt;16.F() 快速文件数据读取和保存 针对简单类型数据 字符串、数组&lt;br&gt;F($name, $value=’’,$path=DATA_PATH)&lt;/p&gt;
+&lt;p&gt;  @param string $name 缓存名称&lt;br&gt;  @param mixed $value 缓存值&lt;br&gt;  @param string $path 缓存路径&lt;br&gt;  @return mixed&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在ThinkPHP中有许多使用简便的单字母函数（即快捷方法），可以很方便开发者快速的调用，但是字母函数却不方便记忆，本文将所有的字母函数总结一下，以方便以后查找。&lt;/p&gt;
+&lt;p&gt;1.U() URL组装 支持不同URL模式&lt;br&gt;U($url=’’,$vars=’’,$suf
+    
+    </summary>
+    
+    
+      <category term="thinkphp" scheme="http://xwzmsdqbjzyyg.github.io/tags/thinkphp/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>摘抄自知乎的redis相关</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/05/24/redis-01/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/05/24/redis-01/</id>
+    <published>2016-05-24T03:10:00.000Z</published>
+    <updated>2016-05-24T03:32:44.122Z</updated>
+    
+    <content type="html">&lt;p&gt;  1.知乎日报的基础数据和统计信息是用 Redis 存储的，这使得请求的平均响应时间能在 10ms 以下。&lt;br&gt;其他数据仍然需要存放在另外的地方，其实完全用 Redis 也是可行的，主要的考量是内存占用。&lt;br&gt;就使用经验而言，Redis 的数据结构很丰富，精心设计地话，能满足很多应用场景。至少很多时候比 MySQL 更方便&lt;br&gt;2.单独使用Redis的话，它是成当不起数据库的任务，比如你每日活跃用户是1万人，但是你那台redis里面已经积累了50万人了（这个比例很正常），那么每次redis启动，就需要把50万load内存，每次redis备份，又需要把50万dump到磁盘，这靠谱么？&lt;br&gt;把冷数据落地到mongo，热数据在用redis存储。 &lt;/p&gt;
+&lt;p&gt;3.redis是目前公认的速度最快的基于内存的键值对数据库，但redis的缺点也非常明显，仅提供最基本的hash set, list, sorted set等基于数据类型，不分表，没有schema，没有索引，没有外键，缺少int/date等基本数据类型，多条件查询需要通过集合内联(sinter,zinterstore)和连接间接实现，操作不便，开发效率低，可维护性不佳； 因此一般不将其视为完整的数据库单独使用，很多网站将redis作为高速缓存和session状态存储层，然后再与其他数据库搭配使用。&lt;/p&gt;
+&lt;p&gt;4.核心业务建议数据还是落地到mysql，redis在异常情况下回丢数据。&lt;br&gt;非核心业务，比如运营推广，数据聚合统计这种允许数据少量丢失的业务可以全用mysql，扩展方便，效率高，业务量也不大。特别是运营推广这种时效性很强的业务，在推广结束后数据接没用了，Redis内存压力也不会很大。&lt;br&gt;mysql能支持对各个字段的查询，Redis的查询仅限于对key的简单匹配，如果要对value进行复杂查询，不适合用Redis。&lt;/p&gt;
+&lt;p&gt;5.目前redis做数据库还不太靠谱。它支持的数据类型太少，而且查询功能太弱。redis并不是为了作为数据库使用的，它更多地是一个高速存取器，一般用作缓存和类似场景。&lt;/p&gt;
+&lt;p&gt;6.redis是一种k/v的内存数据库，适合小数据量的存储以及实时要求高的地方，但是不适合做完整数据库，完整数据库基本上都有一套详细解决方案，比如mysql。&lt;br&gt;我们项目里用到的redis是用来做缓存的，设置过期时间，到时就自动清掉。数据库还是用mysql等这种成熟的方案。&lt;br&gt;如果你非要用一种nosql来做数据库，推荐你用Mongodb&lt;/p&gt;
+&lt;p&gt; 7.redis能否做数据库用取决于如下几个条件：&lt;br&gt;1：数据量，毕竟内存数据库，还是受限于内存的容量，虽然可以redis可以持久化。&lt;br&gt;2：数据的结构，是否能够将关系型数据结构都转换为key/value的形式。&lt;br&gt;3：查询的效率，对范围查询等，是否能转换为高效的hash索引查询&lt;/p&gt;
+&lt;p&gt;8.MongoDB不是内存型数据库，他只不过把所有文件索引存到内存里而已。同样的机型，用MongoDB会比Redis存更多，但Redis响应更快。关键的是看量有多大。&lt;/p&gt;
+&lt;p&gt;9.MongoDB是nosql数据库，它支持把一部分热数据放到内存中，方便用户更快的去处理它。&lt;/p&gt;
+&lt;p&gt;Redis是内存型数据库，是完全的内存数据库！所有的数据都在内存，不存在硬盘一部分，内存一部分的情况。当然可以用save去存数据到硬盘，但这是为了备份安全性考虑而不是使用。&lt;/p&gt;
+&lt;p&gt; 10.一个哈希实际上是一组键值对的集合，哈希本身的键是“父键”，哈希中包含的若干字段是“子键”，每个“子键”都有相应的值。“子键”之间并没有一定的联系，但是它们共同组成了一个完整的哈希结构。我们可以把一个哈希看做关系数据库中的一行，哈希的每个子键对应行的一个字段。因此，当把关系数据库中的数据缓存至Redis时，使用哈希结构可能会带来方便。需要注意的是，哈希结构内部的子键之间是没有顺序关系的。&lt;/p&gt;
+&lt;p&gt;11.Redis是一种内存数据库，这使其在数据存取效率方面表现突出。由于内存中的数据时刻面临丢失的危险，Redis提供了两种持久化机制，及时将内存中的数据写入硬盘。第一种机制为RDB，利用存储快照的方式把内存数据定期写入硬盘；第二种机制为AOF，利用写日志的方式，每执行一条更改Redis数据的命令，就在日志里附加上该命令并保存在硬盘上。Redis默认开启RDB模式，关闭AOF模式，这是因为AOF更加耗时。但是，如果对数据安全要求极高，无法承担任何数据丢失的后果，AOF模式就变成了持久化的首选。&lt;br&gt; 当然，即使Redis具备持久化机制，但是一旦本地硬盘损坏，数据丢失依然在所难免。所以，Redis又提供了复制功能，作用是将一个主数据库（master）的数据自动同步到多个从数据库（slave），从而尽可能防止数据丢失。Redis主从机制可以简单描述为：从数据库启动后，先向主数据库发送SYNC命令；主数据库接到SYNC命令后就开始保存快照，在此期间，所有发给主数据库的命令都被缓存起来；快照保存完成后，主数据库把快照和缓存的命令一起发给从数据库；从数据库保存主数据库发来的快照文件，并依次执行主数据库发来的缓存命令。在同步过程中，从数据库不会阻塞，它默认使用同步之前的数据继续响应客户端发来的命令。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  1.知乎日报的基础数据和统计信息是用 Redis 存储的，这使得请求的平均响应时间能在 10ms 以下。&lt;br&gt;其他数据仍然需要存放在另外的地方，其实完全用 Redis 也是可行的，主要的考量是内存占用。&lt;br&gt;就使用经验而言，Redis 的数据结构很丰富，精心设计地话
+    
+    </summary>
+    
+    
+      <category term="redis" scheme="http://xwzmsdqbjzyyg.github.io/tags/redis/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/05/19/hello-world/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/05/19/hello-world/</id>
+    <published>2016-05-19T06:45:26.685Z</published>
+    <updated>2016-05-30T08:51:00.117Z</updated>
+    
+    <content type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;documentation&lt;/a&gt; for more info. If you get any problems when using Hexo, you can find the answer in &lt;a href=&quot;https://hexo.io/docs/troubleshooting.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;troubleshooting&lt;/a&gt; or you can ask me on &lt;a href=&quot;https://github.com/hexojs/hexo/issues&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;Quick-Start&quot;&gt;&lt;a href=&quot;#Quick-Start&quot; class=&quot;headerlink&quot; title=&quot;Quick Start&quot;&gt;&lt;/a&gt;Quick Start&lt;/h2&gt;&lt;h3 id=&quot;Create-a-new-post&quot;&gt;&lt;a href=&quot;#Create-a-new-post&quot; class=&quot;headerlink&quot; title=&quot;Create a new post&quot;&gt;&lt;/a&gt;Create a new post&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo new &lt;span class=&quot;string&quot;&gt;&quot;My New Post&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/writing.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Writing&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;Run-server&quot;&gt;&lt;a href=&quot;#Run-server&quot; class=&quot;headerlink&quot; title=&quot;Run server&quot;&gt;&lt;/a&gt;Run server&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo server&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/server.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Server&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;Generate-static-files&quot;&gt;&lt;a href=&quot;#Generate-static-files&quot; class=&quot;headerlink&quot; title=&quot;Generate static files&quot;&gt;&lt;/a&gt;Generate static files&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo generate&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/generating.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Generating&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;Deploy-to-remote-sites&quot;&gt;&lt;a href=&quot;#Deploy-to-remote-sites&quot; class=&quot;headerlink&quot; title=&quot;Deploy to remote sites&quot;&gt;&lt;/a&gt;Deploy to remote sites&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo deploy&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/deployment.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Deployment&lt;/a&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>
