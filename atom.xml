@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xwzmsdqbjzyyg.github.io/"/>
-  <updated>2016-05-30T10:24:49.908Z</updated>
+  <updated>2016-05-25T09:05:47.868Z</updated>
   <id>http://xwzmsdqbjzyyg.github.io/</id>
   
   <author>
@@ -14,26 +14,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>shadiaopeng</title>
-    <link href="http://xwzmsdqbjzyyg.github.io/2016/05/30/shadiaopeng/"/>
-    <id>http://xwzmsdqbjzyyg.github.io/2016/05/30/shadiaopeng/</id>
-    <published>2016-05-30T10:24:23.000Z</published>
-    <updated>2016-05-30T10:24:49.908Z</updated>
-    
-    <content type="html">&lt;p&gt;正文： 就你特么事多！&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;正文： 就你特么事多！&lt;/p&gt;
-
-    
-    </summary>
-    
-    
-  </entry>
   
   <entry>
     <title>thinkphp 单字母函数</title>
