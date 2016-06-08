@@ -1,0 +1,265 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> cookie 与 session · 一天进步一点</title><meta name="description" content="cookie 与 session - 陈长生"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/u/1977719157" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/xwzmsdqbjzyyg/xwzmsdqbjzyyg.github.io" target="_blank" class="nav-list-link">GITHUB</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">cookie 与 session</h1><div class="post-info">2016年6月8日</div><div class="post-content"><p>cookie简介</p>
+<p>Cookie是存储在客户端浏览器中的数据，我们通过Cookie来跟踪与存储用户数据。一般情况下，Cookie通过HTTP headers从服务端返回到客户端。多数web程序都支持Cookie的操作，因为Cookie是存在于HTTP的标头之中，所以必须在其他信息输出以前进行设置，类似于header函数的使用限制。</p>
+<p>PHP通过setcookie函数进行Cookie的设置，任何从浏览器发回的Cookie，PHP都会自动的将他存储在$_COOKIE的全局变量之中，因此我们可以通过$_COOKIE[‘key’]的形式来读取某个Cookie值。</p>
+<p>PHP中的Cookie具有非常广泛的使用，经常用来存储用户的登录信息，购物车等，且在使用会话Session时通常使用Cookie来存储会话id来识别用户，Cookie具备有效期，当有效期结束之后，Cookie会自动的从客户端删除。同时为了进行安全控制，Cookie还可以设置域跟路径，我们会在稍后的章节中详细的讲解他们。</p>
+<pre><code>&lt;?php
+setcookie(&apos;test&apos;, time());
+ob_start();//打开输出控制缓冲
+print_r($_COOKIE);
+$content = ob_get_contents();//复制缓冲区内容到$content中
+$content = str_replace(&quot; &quot;, &apos;&amp;nbsp;&apos;, $content);
+ob_clean();//清空（擦掉）输出缓冲区
+header(&quot;content-type:text/html; charset=utf-8&quot;);
+echo &apos;当前的Cookie为：&lt;br/&gt;&apos;;
+echo nl2br($content);//nl2br 在字符串所有新行之前插入 HTML 换行标记
+</code></pre><p>设置cookie</p>
+<p>PHP设置Cookie最常用的方法就是使用setcookie函数，setcookie具有7个可选参数，我们常用到的为前5个：</p>
+<pre><code>name（ Cookie名）可以通过$_COOKIE[&apos;name&apos;] 进行访问
+value（Cookie的值）
+expire（过期时间）Unix时间戳格式，默认为0，表示浏览器关闭即失效
+path（有效路径）如果路径设置为&apos;/&apos;，则整个网站都有效
+domain（有效域）默认整个域名都有效，如果设置了&apos;www.icy.com&apos;,则只在www子域中有效
+
+$value = &apos;test&apos;;
+setcookie(&quot;TestCookie&quot;, $value);
+setcookie(&quot;TestCookie&quot;, $value, time()+3600);  //有效期一小时
+setcookie(&quot;TestCookie&quot;, $value, time()+3600, &quot;/path/&quot;, &quot;icy.com&quot;); //设置路径与域
+</code></pre><p>PHP中还有一个设置Cookie的函数setrawcookie，setrawcookie跟setcookie基本一样，唯一的不同就是value值不会自动的进行urlencode，因此在需要的时候要手动的进行urlencode。</p>
+<pre><code>setrawcookie(&apos;cookie_name&apos;, rawurlencode($value), time()+60*60*24*365); 
+</code></pre><p>因为Cookie是通过HTTP标头进行设置的，所以也可以直接使用header方法进行设置。</p>
+<pre><code>header(&quot;Set-Cookie:cookie_name=value&quot;);
+</code></pre><p>cookie的删除与过期时间</p>
+<p>们却发现php中没有删除Cookie的函数，在PHP中删除cookie也是采用setcookie函数来实现。</p>
+<pre><code>setcookie(&apos;test&apos;, &apos;&apos;, time()-1); 
+</code></pre><p>可以看到将cookie的过期时间设置到当前时间之前，则该cookie会自动失效，也就达到了删除cookie的目的。之所以这么设计是因为cookie是通过HTTP的标头来传递的，客户端根据服务端返回的Set-Cookie段来进行cookie的设置，如果删除cookie需要使用新的Del-Cookie来实现，则HTTP头就会变得复杂，实际上仅通过Set-Cookie就可以简单明了的实现Cookie的设置、更新与删除。</p>
+<p>了解原理以后，我们也可以直接通过header来删除cookie。</p>
+<pre><code>header(&quot;Set-Cookie:test=1393832059; expires=&quot;.gmdate(&apos;D, d M Y H:i:s \G\M\T&apos;, time()-1));
+</code></pre><p>这里用到了gmdate，用来生成格林威治标准时间，以便排除时差的影响。<br>cookie的有效路径</p>
+<p>ookie中的路径用来控制设置的cookie在哪个路径下有效，默认为’/’，在所有路径下都有，当设定了其他路径之后，则只在设定的路径以及子路径下有效，例如：</p>
+<pre><code>setcookie(‘test’, time(), 0, ‘/path’);
+</code></pre><p>上面的设置会使test在/path以及子路径/path/abc下都有效，但是在根目录下就读取不到test的cookie值。</p>
+<p>一般情况下，大多是使用所有路径的，只有在极少数有特殊需求的时候，会设置路径，这种情况下只在指定的路径中才会传递cookie值，可以节省数据的传输，增强安全性以及提高性能。<br>当我们设置了有效路径的时候，不在当前路径的时候则看不到当前cookie。</p>
+<pre><code>setcookie(&apos;test&apos;, &apos;1&apos;,0, &apos;/path&apos;);  
+var_dump($_COOKIE[&apos;test&apos;]);  
+</code></pre><p>session与cookie的异同</p>
+<p>cookie将数据存储在客户端，建立起用户与服务器之间的联系，通常可以解决很多问题，但是cookie仍然具有一些局限：</p>
+<p>cookie相对不是太安全，容易被盗用导致cookie欺骗<br>单个cookie的值最大只能存储4k<br>每次请求都要进行网络传输，占用带宽</p>
+<p>session是将用户的会话数据存储在服务端，没有大小限制，通过一个session_id进行用户识别，PHP默认情况下session id是通过cookie来保存的，因此从某种程度上来说，seesion依赖于cookie。但这不是绝对的，session id也可以通过参数来实现，只要能将session id传递到服务端进行识别的机制都可以使用session。</p>
+<pre><code>&lt;?php
+//开始使用session
+session_start();
+//设置一个session
+$_SESSION[&apos;test&apos;] = time();
+//显示当前的session_id
+echo &quot;session_id:&quot;.session_id();
+echo &quot;&lt;br&gt;&quot;;
+
+//读取session值
+echo $_SESSION[&apos;test&apos;];
+
+//销毁一个session
+unset($_SESSION[&apos;test&apos;]);
+echo &quot;&lt;br&gt;&quot;;
+var_dump($_SESSION);
+</code></pre><p>使用session</p>
+<p>在PHP中使用session非常简单，先执行session_start方法开启session，然后通过全局变量$_SESSION进行session的读写。</p>
+<pre><code>session_start();
+$_SESSION[&apos;test&apos;] = time();
+var_dump($_SESSION);
+</code></pre><p>session会自动的对要设置的值进行encode与decode，因此session可以支持任意数据类型，包括数据与对象等。</p>
+<pre><code>session_start();
+$_SESSION[&apos;ary&apos;] = array(&apos;name&apos; =&gt; &apos;jobs&apos;);
+$_SESSION[&apos;obj&apos;] = new stdClass();
+var_dump($_SESSION);
+</code></pre><p>默认情况下，session是以文件形式存储在服务器上的，因此当一个页面开启了session之后，会独占这个session文件，这样会导致当前用户的其他并发访问无法执行而等待。可以采用缓存或者数据库的形式存储来解决这个问题，这个我们会在一些高级的课程中讲到。</p>
+<pre><code>&lt;?php
+//在这里设置name的session值为jobs
+session_start();
+$_SESSION[&apos;name&apos;]=&apos;xuehairong&apos;;
+$_SESSION[&apos;obj&apos;] = new stdClass();
+var_dump($_SESSION);
+echo $_SESSION[&apos;name&apos;];
+</code></pre><p>输出结果</p>
+<pre><code>array(2) {
+  [&quot;name&quot;]=&gt;
+  string(10) &quot;xuehairong&quot;
+  [&quot;obj&quot;]=&gt;
+  object(stdClass)#1 (0) {
+  }
+}
+xuehairong
+</code></pre><p>删除与销毁session</p>
+<p>删除某个session值可以使用PHP的unset函数，删除后就会从全局变量$_SESSION中去除，无法访问。</p>
+<p>如果要删除所有的session，可以使用session_destroy函数销毁当前session，session_destroy会删除所有数据，但是session_id仍然存在。</p>
+<pre><code>session_start();
+$_SESSION[&apos;name&apos;] = &apos;jobs&apos;;
+unset($_SESSION[&apos;name&apos;]);
+echo $_SESSION[&apos;name&apos;]; //提示name不存在
+
+session_start();
+$_SESSION[&apos;name&apos;] = &apos;jobs&apos;;
+$_SESSION[&apos;time&apos;] = time();
+session_destroy();
+</code></pre><p>值得注意的是，session_destroy并不会立即的销毁全局变量$_SESSION中的值，只有当下次再访问的时候，$_SESSION才为空，因此如果需要立即销毁$_SESSION，可以使用unset函数。</p>
+<pre><code>session_start();
+$_SESSION[&apos;name&apos;] = &apos;jobs&apos;;
+$_SESSION[&apos;time&apos;] = time();
+unset($_SESSION);
+session_destroy(); 
+var_dump($_SESSION); //此时已为空
+</code></pre><p>如果需要同时销毁cookie中的session_id，通常在用户退出的时候可能会用到，则还需要显式的调用setcookie方法删除session_id的cookie值。<br>使用session来存储用户的登录信息</p>
+<p>ession可以用来存储多种类型的数据，因此具有很多的用途，常用来存储用户的登录信息，购物车数据，或者一些临时使用的暂存数据等。</p>
+<p>用户在登录成功以后，通常可以将用户的信息存储在session中，一般的会单独的将一些重要的字段单独存储，然后所有的用户信息独立存储。</p>
+<pre><code>$_SESSION[&apos;uid&apos;] = $userinfo[&apos;uid&apos;];
+$_SESSION[&apos;userinfo&apos;] = $userinfo;
+</code></pre><p>一般来说，登录信息既可以存储在sessioin中，也可以存储在cookie中，他们之间的差别在于session可以方便的存取多种数据类型，而cookie只支持字符串类型，同时对于一些安全性比较高的数据，cookie需要进行格式化与加密存储，而session存储在服务端则安全性较高。</p>
+<pre><code>&lt;?php
+session_start();
+//假设用户登录成功获得了以下用户数据
+$userinfo = array(
+    &apos;uid&apos;  =&gt; 10000,
+    &apos;name&apos; =&gt; &apos;spark&apos;,
+    &apos;email&apos; =&gt; &apos;spark@icy.com&apos;,
+    &apos;sex&apos;  =&gt; &apos;woman&apos;,
+    &apos;age&apos;  =&gt; &apos;18&apos;
+);
+header(&quot;content-type:text/html; charset=utf-8&quot;);
+
+/* 将用户信息保存到session中 */
+$_SESSION[&apos;uid&apos;] = $userinfo[&apos;uid&apos;];
+$_SESSION[&apos;name&apos;] = $userinfo[&apos;name&apos;];
+$_SESSION[&apos;userinfo&apos;] = $userinfo;
+
+//* 将用户数据保存到cookie中的一个简单方法 */
+$secureKey = &apos;icy&apos;; //加密密钥
+$str = serialize($userinfo); //将用户信息序列化
+//用户信息加密前
+$str = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($secureKey), $str, MCRYPT_MODE_ECB));
+//用户信息加密后
+//将加密后的用户数据存储到cookie中
+setcookie(&apos;userinfo&apos;, $str);
+
+//当需要使用时进行解密
+$str = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($secureKey), base64_decode($str), MCRYPT_MODE_ECB);
+$uinfo = unserialize($str);
+echo &quot;解密后的用户信息：&lt;br&gt;&quot;;
+print_r($uinfo);
+</code></pre><p>输出结果：</p>
+<p>解密后的用户信息：<br>    Array<br>    (<br>        [uid] =&gt; 10000<br>        [name] =&gt; spark<br>        [email] =&gt; spark@icy.com<br>        [sex] =&gt; man<br>        [age] =&gt; 18<br>    )</p>
+<p>读取文件内容</p>
+<p>PHP具有丰富的文件操作函数，最简单的读取文件的函数为file_get_contents，可以将整个文件全部读取到一个字符串中。</p>
+<pre><code>$content = file_get_contents(&apos;./test.txt&apos;);
+</code></pre><p>file_get_contents也可以通过参数控制读取内容的开始点以及长度。</p>
+<pre><code>$content = file_get_contents(&apos;./test.txt&apos;, null, null, 100, 500);
+</code></pre><p>PHP也提供类似于C语言操作文件的方法，使用fopen，fgets，fread等方法，fgets可以从文件指针中读取一行，freads可以读取指定长度的字符串。</p>
+<pre><code>$fp = fopen(&apos;./text.txt&apos;, &apos;rb&apos;);
+while(!feof($fp)) {
+    echo fgets($fp); //读取一行
+}
+fclose($fp);
+
+
+
+
+$fp = fopen(&apos;./text.txt&apos;, &apos;rb&apos;);
+$contents = &apos;&apos;;
+while(!feof($fp)) {
+    $contents .= fread($fp, 4096); //一次读取4096个字符
+}
+fclose($fp);
+</code></pre><p>使用fopen打开的文件，最好使用fclose关闭文件指针，以避免文件句柄被占用。</p>
+<pre><code>$filename = &apos;/data/webroot/usercode/resource/test.txt&apos;;
+//编写代码读取$filename的文件内容
+$contents=file_get_contents($filename);
+echo $contents;
+</code></pre><p>输出内容</p>
+<pre><code>this is a test file.
+</code></pre><p>判断文件是否存在</p>
+<p>一般情况下在对文件进行操作的时候需要先判断文件是否存在，PHP中常用来判断文件存在的函数有两个is_file与file_exists.</p>
+<pre><code>$filename = &apos;./test.txt&apos;;
+if (file_exists($filename)) {
+    echo file_get_contents($filename);
+}
+</code></pre><p>如果只是判断文件存在，使用file_exists就行，file_exists不仅可以判断文件是否存在，同时也可以判断目录是否存在，从函数名可以看出，is_file是确切的判断给定的路径是否是一个文件。</p>
+<pre><code>$filename = &apos;./test.txt&apos;;
+if (is_file($filename)) {
+    echo file_get_contents($filename);
+}
+</code></pre><p>更加精确的可以使用is_readable与is_writeable在文件是否存在的基础上，判断文件是否可读与可写。</p>
+<pre><code>$filename = &apos;./test.txt&apos;;
+if (is_writeable($filename)) {
+    file_put_contents($filename, &apos;test&apos;);
+}
+if (is_readable($filename)) {
+    echo file_get_contents($filename);
+}
+</code></pre><p>写入内容到文件</p>
+<p>与读取文件对应，PHP写文件也具有两种方式，最简单的方式是采用file_put_contents。</p>
+<pre><code>$filename = &apos;./test.txt&apos;;
+$data = &apos;test&apos;;
+file_put_contents($filename, $data);
+</code></pre><p>上例中，$data参数可以是一个一维数组，当$data是数组的时候，会自动的将数组连接起来，相当于$data=implode(‘’, $data);</p>
+<p>同样的，PHP也支持类似C语言风格的操作方式，采用fwrite进行文件写入。</p>
+<pre><code>$fp = fopen(&apos;./test.txt&apos;, &apos;w&apos;);
+fwrite($fp, &apos;hello&apos;);
+fwrite($fp, &apos;world&apos;);
+fclose($fp);
+</code></pre><p>取得文件的修改时间</p>
+<p>文件有很多元属性，包括：文件的所有者、创建时间、修改时间、最后的访问时间等。</p>
+<p>fileowner：获得文件的所有者<br>filectime：获取文件的创建时间<br>filemtime：获取文件的修改时间<br>fileatime：获取文件的访问时间</p>
+<p>其中最常用的是文件的修改时间，通过文件的修改时间，可以判断文件的时效性，经常用在静态文件或者缓存数据的更新。</p>
+<p>$mtime = filemtime($filename);<br>echo ‘修改时间：’.date(‘Y-m-d H:i:s’, filemtime($filename));</p>
+<pre><code>&lt;?php
+$filename = &apos;/data/webroot/usercode/code/resource/test.txt&apos;;
+echo &apos;所有者：&apos;.fileowner($filename).&apos;&lt;br&gt;&apos;;
+echo &apos;创建时间：&apos;.filectime($filename).&apos;&lt;br&gt;&apos;;
+echo &apos;修改时间：&apos;.filemtime($filename).&apos;&lt;br&gt;&apos;;
+echo &apos;最后访问时间：&apos;.fileatime($filename).&apos;&lt;br&gt;&apos;;
+
+//给$mtime赋值为文件的修改时间
+$mtime = filemtime($filename);; 
+//通过计算时间差 来判断文件内容是否有效
+if (time() - $mtime &gt; 3600) {
+    echo &apos;&lt;br&gt;缓存已过期&apos;;
+} else {
+    echo file_get_contents($filename);
+}
+</code></pre><p>输出结果</p>
+<pre><code>所有者：501
+创建时间：1446715450
+修改时间：1446715450
+最后访问时间：1460473202
+</code></pre><p>缓存已过期</p>
+<p>取得文件的大小</p>
+<p>通过filesize函数可以取得文件的大小，文件大小是以字节数表示的。</p>
+<pre><code>$filename = &apos;/data/webroot/usercode/code/resource/test.txt&apos;;
+$size = filesize($filename);
+</code></pre><p>如果要转换文件大小的单位，可以自己定义函数来实现。</p>
+<pre><code>function getsize($size, $format = &apos;kb&apos;) {
+    $p = 0;
+    if ($format == &apos;kb&apos;) {
+        $p = 1;
+    } elseif ($format == &apos;mb&apos;) {
+        $p = 2;
+    } elseif ($format == &apos;gb&apos;) {
+        $p = 3;
+    }
+    $size /= pow(1024, $p);
+    return number_format($size, 3);
+}
+
+$filename = &apos;/data/webroot/usercode/code/resource/test.txt&apos;;
+$size = filesize($filename);
+
+$size = getsize($size, &apos;kb&apos;); //进行单位转换
+echo $size.&apos;kb&apos;;
+</code></pre><p>值得注意的是，没法通过简单的函数来取得目录的大小，目录的大小是该目录下所有子目录以及文件大小的总和，因此需要通过递归的方法来循环计算目录的大小。<br>删除文件</p>
+<p>跟Unix系统命令类似，PHP使用unlink函数进行文件删除。</p>
+<pre><code>unlink($filename);
+</code></pre><p>删除文件夹使用rmdir函数，文件夹必须为空，如果不为空或者没有权限则会提示失败。</p>
+<pre><code>rmdir($dir);
+</code></pre><p>如果文件夹中存在文件，可以先循环删除目录中的所有文件，然后再删除该目录，循环删除可以使用glob函数遍历所有文件。</p>
+<pre><code>foreach (glob(&quot;*&quot;) as $filename) {
+   unlink($filename);
+}
+</code></pre></div></article></div></section><footer><div class="paginator"><a href="/2016/06/08/array-02/" class="next">NEXT</a></div><div class="copyright"><p>© 2016 <a href="http://xwzmsdqbjzyyg.github.io">陈长生</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>

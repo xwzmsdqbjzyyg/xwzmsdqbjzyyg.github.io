@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> PHP中的哈希表结构 · 一天进步一点</title><meta name="description" content="PHP中的哈希表结构 - 陈长生"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/u/1977719157" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/xwzmsdqbjzyyg/xwzmsdqbjzyyg.github.io" target="_blank" class="nav-list-link">GITHUB</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">PHP中的哈希表结构</h1><div class="post-info">2016年6月8日</div><div class="post-content"><p>什么叫哈希表？</p>
+<p>散列表（Hash table，也叫哈希表），是根据关键码值(Key value)而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。–维基百科</p>
+<p>…<br>从定义看哈希表最关键的几个方面</p>
+<ol>
+<li>通过一关键码访问（关键码的确定，哈希函数）</li>
+<li>映射到数据结构中（哈希表本身的存储结构）</li>
+<li>映射的处理（冲突或者碰撞检测和处理函数）</li>
+</ol>
+<p>对于PHP的哈希我们也从上面三个方面进行分析。一般来说对于整形索引进行哈希我们很容易想到的是取模运算，比如array(1=&gt;’a’, 2=&gt;’b’, 3=&gt;’c’)，这类我们可以使用index%3来哈希，不过PHP数组的下标还有更灵活的array(‘a’=’c’, ‘b’=&gt;’d’), 此时选择什么哈希函数？答案是DJBX33A算法（DJBX33A算法，也就是time33算法，是APR默认哈希算法，php, apache, perl, bsddb也都使用time33哈希。对于33这个数，DJB注释中是说，1到256之间的所有奇数，都能达到一个可接受的哈希分布，平均分布大概是86%。而其中33，17，31，63，127，129这几个数在面对大量的哈希运算时有一个更大的优势，就是这些数字能将乘法用位运算配合加减法替换，这样运算速度会更高。gcc编译器开启优化后会自动将乘法转换为位运算。）</p>
+<pre><code>static inline ulong zend_inline_hash_func(char *arKey, uint nKeyLength){         
+    register ulong hash = 5381;     /* variant with the hash unrolled eight times */      
+    for (; nKeyLength &gt;= 8; nKeyLength -= 8） {          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;          
+        hash = ((hash &lt;&lt; 5) + hash) + *arKey++;      
+    }  
+    switch (nKeyLength) {          
+        case 7: hash = ((hash &lt;&lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 6: hash = ((hash &lt;&lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 5: hash = ((hash &lt;&lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 4: hash = ((hash &lt;&lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 3: hash = ((hash &lt;&lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 2: hash = ((hash &lt;&lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 1: hash = ((hash &lt;&lt; 5) + hash) + *arKey++; break;          
+        case 0: break;  
+        EMPTY_SWITCH_DEFAULT_CASE()      
+    }  
+    return hash;  
+}  
+</code></pre><p>有了哈希函数之后那么哈希表本身的存储结构如何？这里需要说明两种PHP底层的数据结构HashTable 和 Bucket</p>
+<pre><code>typedef struct _hashtable {  
+    uint nTableSize;  
+    uint nTableMask;  
+    uint nNumOfElements;  
+    ulong nNextFreeElement;  
+    Bucket *pInternalPointer;  
+    Bucket *pListHead;  
+    Bucket *pListTail;  
+    Bucket **arBuckets;  
+    dtor_func_t pDestructor;  
+    zend_bool persistent;  
+    unsigned char nApplyCount;  
+    zend_bool bApplyProtection;  
+#if ZEND_DEBUG  
+    int inconsistent;  
+#endif  
+} HashTable  
+</code></pre><p>……..</p>
+<p>上述结构体定义了PHP底层的存储结构，逐个字段做个解释：</p>
+<ol>
+<li><p>nNumOfElements 是PHP数组中实际存储元素的个数，我们使用count,sizeof计算的就是获取的这个值。</p>
+</li>
+<li><p>nTableSize 顾名思义这个是整个哈希表分配的大小（在内部实现的C中分配的数组大小，PHP是动态的但到底层数组是有大小的是静态的）,他的大小有一个固定的申请算法，一般是最接近并且大于当前这个数值的2的乘方，描述的可能有点模糊，举个例子来看，如果PHP数组存储32个整形数据，那么底层申请的nTableSize应该等于32个元素,如果33呢，那么取最近且大于这个数的一个数64，那么分配的大小是64个元素。这样分配的原因是为了能分配足够的内存同样又不会浪费太多的内存。基于哈希的效率考虑，太小那么势必造成哈希之后太多的碰撞查找，如果分配太大那么必然浪费太多内存，这样分配经过实践证明相对在空间和时间上可以获得一个平衡。</p>
+</li>
+<li><p>nTableMask 哈希表的掩码数值等于nTableSize-1,他的作用是什么？用来纠正通过上面DBJ算法计算的哈希值在当前nTableSize大小的哈希表中的正确的索引值。比如”foo”通过固定算法之后得出的哈希值是193491849，如果表的大小为64，很明显已经超过了最大索引值，这时候就需要运用哈希表的掩码对其进行矫正实际采用的方法就是与掩码进行位运与运算</p>
+<p>hash  |   193491849 |   0b1011100010000111001110001001<br>&amp; mask  | &amp;        63 | &amp; 0b0000000000000000000000111111</p>
+</li>
+</ol>
+<hr>
+<p> = index | =         9 | = 0b0000000000000000000000001001</p>
+<p>这样做是为了把哈希值大的一样映射到nTalbeSize空间内</p>
+<ol>
+<li><p>nNextFreeElement 下一个空闲的元素空间，当我们申请一个空下标元素的时候就需要用到此项，比如$ret[] = ‘apple’</p>
+</li>
+<li><p>pInternalPointer 存储了内部当前执行的元素的指针，当我们使用一些内部循环函数的时候会用到这个指针比如reset(), current(), prev(), next(), foreach(), end()</p>
+</li>
+<li><p>pListHead和pListTail则具体指向了该哈希表的第一个和最后一个元素，对应就是数组的起始和结束元素。</p>
+</li>
+</ol>
+<p>7.arBuckets 这个就是实际存储的C的内部数组，具体的结构后面还会详细讨论。这里记录的是一个指向指针的指针Bucket **。</p>
+<ol>
+<li><p>pDestructor 是一个析构函数，当某个值被从哈希表删除的时候会触发此函数。他还有一个主要作用是用于变量的GC回收。在PHP里面GC是通过引用计数实现的，当一个变量的引用计数变为0，就会被PHP的GC回收</p>
+</li>
+<li><p>persistent 定义了hashtable是否能在多次request中获得持久存在</p>
+</li>
+<li><p>nApplyCount 和 bApplyProtection 是用来防止无限递归的</p>
+</li>
+<li><p>inconsistent 是在调试模式下捕获对HT不正确的使用</p>
+</li>
+</ol>
+<p>接下来讨论HT中真正的数据存储单元Buckets结构:</p>
+<pre><code>typedef struct bucket {  
+    ulong h;  
+    uint nKeyLength;  
+    void *pData;  
+    void *pDataPtr;  
+    struct bucket *pListNext;  
+    struct bucket *pListLast;  
+    struct bucket *pNext;  
+    struct bucket *pLast;  
+    const char *arKey;  
+} Bucket;  
+</code></pre><ol>
+<li><p>h是一个哈希值 未经过掩码矫正的哈希DBJ算出来的原始值</p>
+</li>
+<li><p>arKey,用来记录作为哈希计算的字符串, nKeyLength是哈希字符串的长度，对于整形键值是用不到这两项的</p>
+</li>
+<li><p>pData以及pDataPtr是实际存储数据的指针，在PHP里面他们通常是指向一个zval结构（该结构广泛被PHP用来内部存储各种变量以及对象）</p>
+</li>
+<li><p>pListNext, pListLast 指定了整个数组的顺序, PHP中的遍历就是通过哈希结构体中的pListHead bucket依次遍历pNext直到数组结束。</p>
+</li>
+<li><p>pNext和pLast 这两个指针是用来解决哈希冲突的，这个在下面哈希冲突中详细介绍，在PHP的哈希表冲突的处理采用的是拉链法也就是在每个可能冲突的键值位置拉出一个链表来存储对应的键值数据(哈希冲突还有什么解决方法？寻址法不过在PHP中并是通过这个方式实现的)</p>
+</li>
+</ol>
+<p>关于哈希冲突，PHP的实现是通过拉链法实现的，当键值被哈希到同一个槽位（bucket）就是发生了冲突，这时候会从bucket拉出一个链表把冲突的元素顺序链接起来。pListNext,pListLast就是实现这个拉链的结构的</p>
+<p>至此PHP的哈希的基本结构介绍完毕，实现是非常complex的，但对比灵活无比的PHP数组这点点复杂性值，太TM值了。</p>
+<p>关于那两队对指针，国外有网站上搞错了，这里把检测哈希冲突的PHP函数贴出来，pNext指针的作用就一目了然了</p>
+<pre><code>ZEND_API int zend_hash_exists(const HashTable *ht, const char *arKey, uint nKeyLength)  
+{  
+    ulong h;  
+    uint nIndex;  
+    Bucket *p;  
+
+    IS_CONSISTENT(ht);  
+
+    h = zend_inline_hash_func(arKey, nKeyLength);  
+    nIndex = h &amp; ht-&gt;nTableMask;  
+
+    p = ht-&gt;arBuckets[nIndex];  
+    while (p != NULL) {  
+        if (p-&gt;arKey == arKey ||  
+            ((p-&gt;h == h) &amp;&amp; (p-&gt;nKeyLength == nKeyLength) &amp;&amp; !memcmp(p-&gt;arKey, arKey, nKeyLength))) {  
+                return 1;  
+        }  
+        p = p-&gt;pNext;  
+    }  
+    return 0;  
+}  
+</code></pre></div></article></div></section><footer><div class="paginator"><a href="/2016/06/08/cookie-01/" class="prev">PREV</a><a href="/2016/06/08/array-01/" class="next">NEXT</a></div><div class="copyright"><p>© 2016 <a href="http://xwzmsdqbjzyyg.github.io">陈长生</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>

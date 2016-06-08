@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xwzmsdqbjzyyg.github.io/"/>
-  <updated>2016-06-08T07:22:23.084Z</updated>
+  <updated>2016-06-08T09:41:29.791Z</updated>
   <id>http://xwzmsdqbjzyyg.github.io/</id>
   
   <author>
@@ -14,6 +14,445 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>cookie 与 session</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/06/08/cookie-01/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/06/08/cookie-01/</id>
+    <published>2016-06-08T09:20:26.000Z</published>
+    <updated>2016-06-08T09:41:29.791Z</updated>
+    
+    <content type="html">&lt;p&gt;cookie简介&lt;/p&gt;
+&lt;p&gt;Cookie是存储在客户端浏览器中的数据，我们通过Cookie来跟踪与存储用户数据。一般情况下，Cookie通过HTTP headers从服务端返回到客户端。多数web程序都支持Cookie的操作，因为Cookie是存在于HTTP的标头之中，所以必须在其他信息输出以前进行设置，类似于header函数的使用限制。&lt;/p&gt;
+&lt;p&gt;PHP通过setcookie函数进行Cookie的设置，任何从浏览器发回的Cookie，PHP都会自动的将他存储在$_COOKIE的全局变量之中，因此我们可以通过$_COOKIE[‘key’]的形式来读取某个Cookie值。&lt;/p&gt;
+&lt;p&gt;PHP中的Cookie具有非常广泛的使用，经常用来存储用户的登录信息，购物车等，且在使用会话Session时通常使用Cookie来存储会话id来识别用户，Cookie具备有效期，当有效期结束之后，Cookie会自动的从客户端删除。同时为了进行安全控制，Cookie还可以设置域跟路径，我们会在稍后的章节中详细的讲解他们。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+setcookie(&amp;apos;test&amp;apos;, time());
+ob_start();//打开输出控制缓冲
+print_r($_COOKIE);
+$content = ob_get_contents();//复制缓冲区内容到$content中
+$content = str_replace(&amp;quot; &amp;quot;, &amp;apos;&amp;amp;nbsp;&amp;apos;, $content);
+ob_clean();//清空（擦掉）输出缓冲区
+header(&amp;quot;content-type:text/html; charset=utf-8&amp;quot;);
+echo &amp;apos;当前的Cookie为：&amp;lt;br/&amp;gt;&amp;apos;;
+echo nl2br($content);//nl2br 在字符串所有新行之前插入 HTML 换行标记
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;设置cookie&lt;/p&gt;
+&lt;p&gt;PHP设置Cookie最常用的方法就是使用setcookie函数，setcookie具有7个可选参数，我们常用到的为前5个：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;name（ Cookie名）可以通过$_COOKIE[&amp;apos;name&amp;apos;] 进行访问
+value（Cookie的值）
+expire（过期时间）Unix时间戳格式，默认为0，表示浏览器关闭即失效
+path（有效路径）如果路径设置为&amp;apos;/&amp;apos;，则整个网站都有效
+domain（有效域）默认整个域名都有效，如果设置了&amp;apos;www.icy.com&amp;apos;,则只在www子域中有效
+
+$value = &amp;apos;test&amp;apos;;
+setcookie(&amp;quot;TestCookie&amp;quot;, $value);
+setcookie(&amp;quot;TestCookie&amp;quot;, $value, time()+3600);  //有效期一小时
+setcookie(&amp;quot;TestCookie&amp;quot;, $value, time()+3600, &amp;quot;/path/&amp;quot;, &amp;quot;icy.com&amp;quot;); //设置路径与域
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;PHP中还有一个设置Cookie的函数setrawcookie，setrawcookie跟setcookie基本一样，唯一的不同就是value值不会自动的进行urlencode，因此在需要的时候要手动的进行urlencode。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;setrawcookie(&amp;apos;cookie_name&amp;apos;, rawurlencode($value), time()+60*60*24*365); 
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;因为Cookie是通过HTTP标头进行设置的，所以也可以直接使用header方法进行设置。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;header(&amp;quot;Set-Cookie:cookie_name=value&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;cookie的删除与过期时间&lt;/p&gt;
+&lt;p&gt;们却发现php中没有删除Cookie的函数，在PHP中删除cookie也是采用setcookie函数来实现。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;setcookie(&amp;apos;test&amp;apos;, &amp;apos;&amp;apos;, time()-1); 
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;可以看到将cookie的过期时间设置到当前时间之前，则该cookie会自动失效，也就达到了删除cookie的目的。之所以这么设计是因为cookie是通过HTTP的标头来传递的，客户端根据服务端返回的Set-Cookie段来进行cookie的设置，如果删除cookie需要使用新的Del-Cookie来实现，则HTTP头就会变得复杂，实际上仅通过Set-Cookie就可以简单明了的实现Cookie的设置、更新与删除。&lt;/p&gt;
+&lt;p&gt;了解原理以后，我们也可以直接通过header来删除cookie。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;header(&amp;quot;Set-Cookie:test=1393832059; expires=&amp;quot;.gmdate(&amp;apos;D, d M Y H:i:s \G\M\T&amp;apos;, time()-1));
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这里用到了gmdate，用来生成格林威治标准时间，以便排除时差的影响。&lt;br&gt;cookie的有效路径&lt;/p&gt;
+&lt;p&gt;ookie中的路径用来控制设置的cookie在哪个路径下有效，默认为’/’，在所有路径下都有，当设定了其他路径之后，则只在设定的路径以及子路径下有效，例如：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;setcookie(‘test’, time(), 0, ‘/path’);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;上面的设置会使test在/path以及子路径/path/abc下都有效，但是在根目录下就读取不到test的cookie值。&lt;/p&gt;
+&lt;p&gt;一般情况下，大多是使用所有路径的，只有在极少数有特殊需求的时候，会设置路径，这种情况下只在指定的路径中才会传递cookie值，可以节省数据的传输，增强安全性以及提高性能。&lt;br&gt;当我们设置了有效路径的时候，不在当前路径的时候则看不到当前cookie。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;setcookie(&amp;apos;test&amp;apos;, &amp;apos;1&amp;apos;,0, &amp;apos;/path&amp;apos;);  
+var_dump($_COOKIE[&amp;apos;test&amp;apos;]);  
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;session与cookie的异同&lt;/p&gt;
+&lt;p&gt;cookie将数据存储在客户端，建立起用户与服务器之间的联系，通常可以解决很多问题，但是cookie仍然具有一些局限：&lt;/p&gt;
+&lt;p&gt;cookie相对不是太安全，容易被盗用导致cookie欺骗&lt;br&gt;单个cookie的值最大只能存储4k&lt;br&gt;每次请求都要进行网络传输，占用带宽&lt;/p&gt;
+&lt;p&gt;session是将用户的会话数据存储在服务端，没有大小限制，通过一个session_id进行用户识别，PHP默认情况下session id是通过cookie来保存的，因此从某种程度上来说，seesion依赖于cookie。但这不是绝对的，session id也可以通过参数来实现，只要能将session id传递到服务端进行识别的机制都可以使用session。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+//开始使用session
+session_start();
+//设置一个session
+$_SESSION[&amp;apos;test&amp;apos;] = time();
+//显示当前的session_id
+echo &amp;quot;session_id:&amp;quot;.session_id();
+echo &amp;quot;&amp;lt;br&amp;gt;&amp;quot;;
+
+//读取session值
+echo $_SESSION[&amp;apos;test&amp;apos;];
+
+//销毁一个session
+unset($_SESSION[&amp;apos;test&amp;apos;]);
+echo &amp;quot;&amp;lt;br&amp;gt;&amp;quot;;
+var_dump($_SESSION);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;使用session&lt;/p&gt;
+&lt;p&gt;在PHP中使用session非常简单，先执行session_start方法开启session，然后通过全局变量$_SESSION进行session的读写。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;session_start();
+$_SESSION[&amp;apos;test&amp;apos;] = time();
+var_dump($_SESSION);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;session会自动的对要设置的值进行encode与decode，因此session可以支持任意数据类型，包括数据与对象等。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;session_start();
+$_SESSION[&amp;apos;ary&amp;apos;] = array(&amp;apos;name&amp;apos; =&amp;gt; &amp;apos;jobs&amp;apos;);
+$_SESSION[&amp;apos;obj&amp;apos;] = new stdClass();
+var_dump($_SESSION);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;默认情况下，session是以文件形式存储在服务器上的，因此当一个页面开启了session之后，会独占这个session文件，这样会导致当前用户的其他并发访问无法执行而等待。可以采用缓存或者数据库的形式存储来解决这个问题，这个我们会在一些高级的课程中讲到。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+//在这里设置name的session值为jobs
+session_start();
+$_SESSION[&amp;apos;name&amp;apos;]=&amp;apos;xuehairong&amp;apos;;
+$_SESSION[&amp;apos;obj&amp;apos;] = new stdClass();
+var_dump($_SESSION);
+echo $_SESSION[&amp;apos;name&amp;apos;];
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;输出结果&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;array(2) {
+  [&amp;quot;name&amp;quot;]=&amp;gt;
+  string(10) &amp;quot;xuehairong&amp;quot;
+  [&amp;quot;obj&amp;quot;]=&amp;gt;
+  object(stdClass)#1 (0) {
+  }
+}
+xuehairong
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;删除与销毁session&lt;/p&gt;
+&lt;p&gt;删除某个session值可以使用PHP的unset函数，删除后就会从全局变量$_SESSION中去除，无法访问。&lt;/p&gt;
+&lt;p&gt;如果要删除所有的session，可以使用session_destroy函数销毁当前session，session_destroy会删除所有数据，但是session_id仍然存在。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;session_start();
+$_SESSION[&amp;apos;name&amp;apos;] = &amp;apos;jobs&amp;apos;;
+unset($_SESSION[&amp;apos;name&amp;apos;]);
+echo $_SESSION[&amp;apos;name&amp;apos;]; //提示name不存在
+
+session_start();
+$_SESSION[&amp;apos;name&amp;apos;] = &amp;apos;jobs&amp;apos;;
+$_SESSION[&amp;apos;time&amp;apos;] = time();
+session_destroy();
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;值得注意的是，session_destroy并不会立即的销毁全局变量$_SESSION中的值，只有当下次再访问的时候，$_SESSION才为空，因此如果需要立即销毁$_SESSION，可以使用unset函数。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;session_start();
+$_SESSION[&amp;apos;name&amp;apos;] = &amp;apos;jobs&amp;apos;;
+$_SESSION[&amp;apos;time&amp;apos;] = time();
+unset($_SESSION);
+session_destroy(); 
+var_dump($_SESSION); //此时已为空
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果需要同时销毁cookie中的session_id，通常在用户退出的时候可能会用到，则还需要显式的调用setcookie方法删除session_id的cookie值。&lt;br&gt;使用session来存储用户的登录信息&lt;/p&gt;
+&lt;p&gt;ession可以用来存储多种类型的数据，因此具有很多的用途，常用来存储用户的登录信息，购物车数据，或者一些临时使用的暂存数据等。&lt;/p&gt;
+&lt;p&gt;用户在登录成功以后，通常可以将用户的信息存储在session中，一般的会单独的将一些重要的字段单独存储，然后所有的用户信息独立存储。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$_SESSION[&amp;apos;uid&amp;apos;] = $userinfo[&amp;apos;uid&amp;apos;];
+$_SESSION[&amp;apos;userinfo&amp;apos;] = $userinfo;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;一般来说，登录信息既可以存储在sessioin中，也可以存储在cookie中，他们之间的差别在于session可以方便的存取多种数据类型，而cookie只支持字符串类型，同时对于一些安全性比较高的数据，cookie需要进行格式化与加密存储，而session存储在服务端则安全性较高。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+session_start();
+//假设用户登录成功获得了以下用户数据
+$userinfo = array(
+    &amp;apos;uid&amp;apos;  =&amp;gt; 10000,
+    &amp;apos;name&amp;apos; =&amp;gt; &amp;apos;spark&amp;apos;,
+    &amp;apos;email&amp;apos; =&amp;gt; &amp;apos;spark@icy.com&amp;apos;,
+    &amp;apos;sex&amp;apos;  =&amp;gt; &amp;apos;woman&amp;apos;,
+    &amp;apos;age&amp;apos;  =&amp;gt; &amp;apos;18&amp;apos;
+);
+header(&amp;quot;content-type:text/html; charset=utf-8&amp;quot;);
+
+/* 将用户信息保存到session中 */
+$_SESSION[&amp;apos;uid&amp;apos;] = $userinfo[&amp;apos;uid&amp;apos;];
+$_SESSION[&amp;apos;name&amp;apos;] = $userinfo[&amp;apos;name&amp;apos;];
+$_SESSION[&amp;apos;userinfo&amp;apos;] = $userinfo;
+
+//* 将用户数据保存到cookie中的一个简单方法 */
+$secureKey = &amp;apos;icy&amp;apos;; //加密密钥
+$str = serialize($userinfo); //将用户信息序列化
+//用户信息加密前
+$str = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, md5($secureKey), $str, MCRYPT_MODE_ECB));
+//用户信息加密后
+//将加密后的用户数据存储到cookie中
+setcookie(&amp;apos;userinfo&amp;apos;, $str);
+
+//当需要使用时进行解密
+$str = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, md5($secureKey), base64_decode($str), MCRYPT_MODE_ECB);
+$uinfo = unserialize($str);
+echo &amp;quot;解密后的用户信息：&amp;lt;br&amp;gt;&amp;quot;;
+print_r($uinfo);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;输出结果：&lt;/p&gt;
+&lt;p&gt;解密后的用户信息：&lt;br&gt;    Array&lt;br&gt;    (&lt;br&gt;        [uid] =&amp;gt; 10000&lt;br&gt;        [name] =&amp;gt; spark&lt;br&gt;        [email] =&amp;gt; spark@icy.com&lt;br&gt;        [sex] =&amp;gt; man&lt;br&gt;        [age] =&amp;gt; 18&lt;br&gt;    )&lt;/p&gt;
+&lt;p&gt;读取文件内容&lt;/p&gt;
+&lt;p&gt;PHP具有丰富的文件操作函数，最简单的读取文件的函数为file_get_contents，可以将整个文件全部读取到一个字符串中。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$content = file_get_contents(&amp;apos;./test.txt&amp;apos;);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;file_get_contents也可以通过参数控制读取内容的开始点以及长度。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$content = file_get_contents(&amp;apos;./test.txt&amp;apos;, null, null, 100, 500);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;PHP也提供类似于C语言操作文件的方法，使用fopen，fgets，fread等方法，fgets可以从文件指针中读取一行，freads可以读取指定长度的字符串。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$fp = fopen(&amp;apos;./text.txt&amp;apos;, &amp;apos;rb&amp;apos;);
+while(!feof($fp)) {
+    echo fgets($fp); //读取一行
+}
+fclose($fp);
+
+
+
+
+$fp = fopen(&amp;apos;./text.txt&amp;apos;, &amp;apos;rb&amp;apos;);
+$contents = &amp;apos;&amp;apos;;
+while(!feof($fp)) {
+    $contents .= fread($fp, 4096); //一次读取4096个字符
+}
+fclose($fp);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;使用fopen打开的文件，最好使用fclose关闭文件指针，以避免文件句柄被占用。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$filename = &amp;apos;/data/webroot/usercode/resource/test.txt&amp;apos;;
+//编写代码读取$filename的文件内容
+$contents=file_get_contents($filename);
+echo $contents;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;输出内容&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;this is a test file.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;判断文件是否存在&lt;/p&gt;
+&lt;p&gt;一般情况下在对文件进行操作的时候需要先判断文件是否存在，PHP中常用来判断文件存在的函数有两个is_file与file_exists.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$filename = &amp;apos;./test.txt&amp;apos;;
+if (file_exists($filename)) {
+    echo file_get_contents($filename);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果只是判断文件存在，使用file_exists就行，file_exists不仅可以判断文件是否存在，同时也可以判断目录是否存在，从函数名可以看出，is_file是确切的判断给定的路径是否是一个文件。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$filename = &amp;apos;./test.txt&amp;apos;;
+if (is_file($filename)) {
+    echo file_get_contents($filename);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;更加精确的可以使用is_readable与is_writeable在文件是否存在的基础上，判断文件是否可读与可写。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$filename = &amp;apos;./test.txt&amp;apos;;
+if (is_writeable($filename)) {
+    file_put_contents($filename, &amp;apos;test&amp;apos;);
+}
+if (is_readable($filename)) {
+    echo file_get_contents($filename);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;写入内容到文件&lt;/p&gt;
+&lt;p&gt;与读取文件对应，PHP写文件也具有两种方式，最简单的方式是采用file_put_contents。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$filename = &amp;apos;./test.txt&amp;apos;;
+$data = &amp;apos;test&amp;apos;;
+file_put_contents($filename, $data);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;上例中，$data参数可以是一个一维数组，当$data是数组的时候，会自动的将数组连接起来，相当于$data=implode(‘’, $data);&lt;/p&gt;
+&lt;p&gt;同样的，PHP也支持类似C语言风格的操作方式，采用fwrite进行文件写入。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$fp = fopen(&amp;apos;./test.txt&amp;apos;, &amp;apos;w&amp;apos;);
+fwrite($fp, &amp;apos;hello&amp;apos;);
+fwrite($fp, &amp;apos;world&amp;apos;);
+fclose($fp);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;取得文件的修改时间&lt;/p&gt;
+&lt;p&gt;文件有很多元属性，包括：文件的所有者、创建时间、修改时间、最后的访问时间等。&lt;/p&gt;
+&lt;p&gt;fileowner：获得文件的所有者&lt;br&gt;filectime：获取文件的创建时间&lt;br&gt;filemtime：获取文件的修改时间&lt;br&gt;fileatime：获取文件的访问时间&lt;/p&gt;
+&lt;p&gt;其中最常用的是文件的修改时间，通过文件的修改时间，可以判断文件的时效性，经常用在静态文件或者缓存数据的更新。&lt;/p&gt;
+&lt;p&gt;$mtime = filemtime($filename);&lt;br&gt;echo ‘修改时间：’.date(‘Y-m-d H:i:s’, filemtime($filename));&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+$filename = &amp;apos;/data/webroot/usercode/code/resource/test.txt&amp;apos;;
+echo &amp;apos;所有者：&amp;apos;.fileowner($filename).&amp;apos;&amp;lt;br&amp;gt;&amp;apos;;
+echo &amp;apos;创建时间：&amp;apos;.filectime($filename).&amp;apos;&amp;lt;br&amp;gt;&amp;apos;;
+echo &amp;apos;修改时间：&amp;apos;.filemtime($filename).&amp;apos;&amp;lt;br&amp;gt;&amp;apos;;
+echo &amp;apos;最后访问时间：&amp;apos;.fileatime($filename).&amp;apos;&amp;lt;br&amp;gt;&amp;apos;;
+
+//给$mtime赋值为文件的修改时间
+$mtime = filemtime($filename);; 
+//通过计算时间差 来判断文件内容是否有效
+if (time() - $mtime &amp;gt; 3600) {
+    echo &amp;apos;&amp;lt;br&amp;gt;缓存已过期&amp;apos;;
+} else {
+    echo file_get_contents($filename);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;输出结果&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;所有者：501
+创建时间：1446715450
+修改时间：1446715450
+最后访问时间：1460473202
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;缓存已过期&lt;/p&gt;
+&lt;p&gt;取得文件的大小&lt;/p&gt;
+&lt;p&gt;通过filesize函数可以取得文件的大小，文件大小是以字节数表示的。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$filename = &amp;apos;/data/webroot/usercode/code/resource/test.txt&amp;apos;;
+$size = filesize($filename);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果要转换文件大小的单位，可以自己定义函数来实现。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;function getsize($size, $format = &amp;apos;kb&amp;apos;) {
+    $p = 0;
+    if ($format == &amp;apos;kb&amp;apos;) {
+        $p = 1;
+    } elseif ($format == &amp;apos;mb&amp;apos;) {
+        $p = 2;
+    } elseif ($format == &amp;apos;gb&amp;apos;) {
+        $p = 3;
+    }
+    $size /= pow(1024, $p);
+    return number_format($size, 3);
+}
+
+$filename = &amp;apos;/data/webroot/usercode/code/resource/test.txt&amp;apos;;
+$size = filesize($filename);
+
+$size = getsize($size, &amp;apos;kb&amp;apos;); //进行单位转换
+echo $size.&amp;apos;kb&amp;apos;;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;值得注意的是，没法通过简单的函数来取得目录的大小，目录的大小是该目录下所有子目录以及文件大小的总和，因此需要通过递归的方法来循环计算目录的大小。&lt;br&gt;删除文件&lt;/p&gt;
+&lt;p&gt;跟Unix系统命令类似，PHP使用unlink函数进行文件删除。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;unlink($filename);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;删除文件夹使用rmdir函数，文件夹必须为空，如果不为空或者没有权限则会提示失败。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;rmdir($dir);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果文件夹中存在文件，可以先循环删除目录中的所有文件，然后再删除该目录，循环删除可以使用glob函数遍历所有文件。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;foreach (glob(&amp;quot;*&amp;quot;) as $filename) {
+   unlink($filename);
+}
+&lt;/code&gt;&lt;/pre&gt;</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;cookie简介&lt;/p&gt;
+&lt;p&gt;Cookie是存储在客户端浏览器中的数据，我们通过Cookie来跟踪与存储用户数据。一般情况下，Cookie通过HTTP headers从服务端返回到客户端。多数web程序都支持Cookie的操作，因为Cookie是存在于HTTP的标头之中，
+    
+    </summary>
+    
+    
+      <category term="cookie session" scheme="http://xwzmsdqbjzyyg.github.io/tags/cookie-session/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>PHP中的哈希表结构</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/06/08/array-02/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/06/08/array-02/</id>
+    <published>2016-06-08T08:01:54.000Z</published>
+    <updated>2016-06-08T08:15:24.877Z</updated>
+    
+    <content type="html">&lt;p&gt;什么叫哈希表？&lt;/p&gt;
+&lt;p&gt;散列表（Hash table，也叫哈希表），是根据关键码值(Key value)而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。–维基百科&lt;/p&gt;
+&lt;p&gt;…&lt;br&gt;从定义看哈希表最关键的几个方面&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;通过一关键码访问（关键码的确定，哈希函数）&lt;/li&gt;
+&lt;li&gt;映射到数据结构中（哈希表本身的存储结构）&lt;/li&gt;
+&lt;li&gt;映射的处理（冲突或者碰撞检测和处理函数）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;对于PHP的哈希我们也从上面三个方面进行分析。一般来说对于整形索引进行哈希我们很容易想到的是取模运算，比如array(1=&amp;gt;’a’, 2=&amp;gt;’b’, 3=&amp;gt;’c’)，这类我们可以使用index%3来哈希，不过PHP数组的下标还有更灵活的array(‘a’=’c’, ‘b’=&amp;gt;’d’), 此时选择什么哈希函数？答案是DJBX33A算法（DJBX33A算法，也就是time33算法，是APR默认哈希算法，php, apache, perl, bsddb也都使用time33哈希。对于33这个数，DJB注释中是说，1到256之间的所有奇数，都能达到一个可接受的哈希分布，平均分布大概是86%。而其中33，17，31，63，127，129这几个数在面对大量的哈希运算时有一个更大的优势，就是这些数字能将乘法用位运算配合加减法替换，这样运算速度会更高。gcc编译器开启优化后会自动将乘法转换为位运算。）&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;static inline ulong zend_inline_hash_func(char *arKey, uint nKeyLength){         
+    register ulong hash = 5381;     /* variant with the hash unrolled eight times */      
+    for (; nKeyLength &amp;gt;= 8; nKeyLength -= 8） {          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;          
+        hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++;      
+    }  
+    switch (nKeyLength) {          
+        case 7: hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 6: hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 5: hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 4: hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 3: hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 2: hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++; /* fallthrough... */          
+        case 1: hash = ((hash &amp;lt;&amp;lt; 5) + hash) + *arKey++; break;          
+        case 0: break;  
+        EMPTY_SWITCH_DEFAULT_CASE()      
+    }  
+    return hash;  
+}  
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;有了哈希函数之后那么哈希表本身的存储结构如何？这里需要说明两种PHP底层的数据结构HashTable 和 Bucket&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;typedef struct _hashtable {  
+    uint nTableSize;  
+    uint nTableMask;  
+    uint nNumOfElements;  
+    ulong nNextFreeElement;  
+    Bucket *pInternalPointer;  
+    Bucket *pListHead;  
+    Bucket *pListTail;  
+    Bucket **arBuckets;  
+    dtor_func_t pDestructor;  
+    zend_bool persistent;  
+    unsigned char nApplyCount;  
+    zend_bool bApplyProtection;  
+#if ZEND_DEBUG  
+    int inconsistent;  
+#endif  
+} HashTable  
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;……..&lt;/p&gt;
+&lt;p&gt;上述结构体定义了PHP底层的存储结构，逐个字段做个解释：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;nNumOfElements 是PHP数组中实际存储元素的个数，我们使用count,sizeof计算的就是获取的这个值。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;nTableSize 顾名思义这个是整个哈希表分配的大小（在内部实现的C中分配的数组大小，PHP是动态的但到底层数组是有大小的是静态的）,他的大小有一个固定的申请算法，一般是最接近并且大于当前这个数值的2的乘方，描述的可能有点模糊，举个例子来看，如果PHP数组存储32个整形数据，那么底层申请的nTableSize应该等于32个元素,如果33呢，那么取最近且大于这个数的一个数64，那么分配的大小是64个元素。这样分配的原因是为了能分配足够的内存同样又不会浪费太多的内存。基于哈希的效率考虑，太小那么势必造成哈希之后太多的碰撞查找，如果分配太大那么必然浪费太多内存，这样分配经过实践证明相对在空间和时间上可以获得一个平衡。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;nTableMask 哈希表的掩码数值等于nTableSize-1,他的作用是什么？用来纠正通过上面DBJ算法计算的哈希值在当前nTableSize大小的哈希表中的正确的索引值。比如”foo”通过固定算法之后得出的哈希值是193491849，如果表的大小为64，很明显已经超过了最大索引值，这时候就需要运用哈希表的掩码对其进行矫正实际采用的方法就是与掩码进行位运与运算&lt;/p&gt;
+&lt;p&gt;hash  |   193491849 |   0b1011100010000111001110001001&lt;br&gt;&amp;amp; mask  | &amp;amp;        63 | &amp;amp; 0b0000000000000000000000111111&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt; = index | =         9 | = 0b0000000000000000000000001001&lt;/p&gt;
+&lt;p&gt;这样做是为了把哈希值大的一样映射到nTalbeSize空间内&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;nNextFreeElement 下一个空闲的元素空间，当我们申请一个空下标元素的时候就需要用到此项，比如$ret[] = ‘apple’&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;pInternalPointer 存储了内部当前执行的元素的指针，当我们使用一些内部循环函数的时候会用到这个指针比如reset(), current(), prev(), next(), foreach(), end()&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;pListHead和pListTail则具体指向了该哈希表的第一个和最后一个元素，对应就是数组的起始和结束元素。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;7.arBuckets 这个就是实际存储的C的内部数组，具体的结构后面还会详细讨论。这里记录的是一个指向指针的指针Bucket **。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;pDestructor 是一个析构函数，当某个值被从哈希表删除的时候会触发此函数。他还有一个主要作用是用于变量的GC回收。在PHP里面GC是通过引用计数实现的，当一个变量的引用计数变为0，就会被PHP的GC回收&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;persistent 定义了hashtable是否能在多次request中获得持久存在&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;nApplyCount 和 bApplyProtection 是用来防止无限递归的&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;inconsistent 是在调试模式下捕获对HT不正确的使用&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;接下来讨论HT中真正的数据存储单元Buckets结构:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;typedef struct bucket {  
+    ulong h;  
+    uint nKeyLength;  
+    void *pData;  
+    void *pDataPtr;  
+    struct bucket *pListNext;  
+    struct bucket *pListLast;  
+    struct bucket *pNext;  
+    struct bucket *pLast;  
+    const char *arKey;  
+} Bucket;  
+&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;h是一个哈希值 未经过掩码矫正的哈希DBJ算出来的原始值&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;arKey,用来记录作为哈希计算的字符串, nKeyLength是哈希字符串的长度，对于整形键值是用不到这两项的&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;pData以及pDataPtr是实际存储数据的指针，在PHP里面他们通常是指向一个zval结构（该结构广泛被PHP用来内部存储各种变量以及对象）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;pListNext, pListLast 指定了整个数组的顺序, PHP中的遍历就是通过哈希结构体中的pListHead bucket依次遍历pNext直到数组结束。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;pNext和pLast 这两个指针是用来解决哈希冲突的，这个在下面哈希冲突中详细介绍，在PHP的哈希表冲突的处理采用的是拉链法也就是在每个可能冲突的键值位置拉出一个链表来存储对应的键值数据(哈希冲突还有什么解决方法？寻址法不过在PHP中并是通过这个方式实现的)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;关于哈希冲突，PHP的实现是通过拉链法实现的，当键值被哈希到同一个槽位（bucket）就是发生了冲突，这时候会从bucket拉出一个链表把冲突的元素顺序链接起来。pListNext,pListLast就是实现这个拉链的结构的&lt;/p&gt;
+&lt;p&gt;至此PHP的哈希的基本结构介绍完毕，实现是非常complex的，但对比灵活无比的PHP数组这点点复杂性值，太TM值了。&lt;/p&gt;
+&lt;p&gt;关于那两队对指针，国外有网站上搞错了，这里把检测哈希冲突的PHP函数贴出来，pNext指针的作用就一目了然了&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ZEND_API int zend_hash_exists(const HashTable *ht, const char *arKey, uint nKeyLength)  
+{  
+    ulong h;  
+    uint nIndex;  
+    Bucket *p;  
+
+    IS_CONSISTENT(ht);  
+
+    h = zend_inline_hash_func(arKey, nKeyLength);  
+    nIndex = h &amp;amp; ht-&amp;gt;nTableMask;  
+
+    p = ht-&amp;gt;arBuckets[nIndex];  
+    while (p != NULL) {  
+        if (p-&amp;gt;arKey == arKey ||  
+            ((p-&amp;gt;h == h) &amp;amp;&amp;amp; (p-&amp;gt;nKeyLength == nKeyLength) &amp;amp;&amp;amp; !memcmp(p-&amp;gt;arKey, arKey, nKeyLength))) {  
+                return 1;  
+        }  
+        p = p-&amp;gt;pNext;  
+    }  
+    return 0;  
+}  
+&lt;/code&gt;&lt;/pre&gt;</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;什么叫哈希表？&lt;/p&gt;
+&lt;p&gt;散列表（Hash table，也叫哈希表），是根据关键码值(Key value)而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。–维基百科&lt;
+    
+    </summary>
+    
+    
+      <category term="数组" scheme="http://xwzmsdqbjzyyg.github.io/tags/%E6%95%B0%E7%BB%84/"/>
+    
+  </entry>
   
   <entry>
     <title>PHP 数组浅析</title>
