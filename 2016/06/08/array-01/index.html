@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> PHP 数组浅析 · 一天进步一点</title><meta name="description" content="PHP 数组浅析 - 陈长生"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/u/1977719157" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/xwzmsdqbjzyyg/xwzmsdqbjzyyg.github.io" target="_blank" class="nav-list-link">GITHUB</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">PHP 数组浅析</h1><div class="post-info">2016年6月8日</div><div class="post-content"><p>一、概要<br>    简单介绍及基本使用<br>    php数组 常用标准库函数使用<br>    php数组模拟常见数据结构<br>    php数组使用须知与注意点<br>    FAQ<br>二、简单介绍及基本使用<br>    PHP 中的数组实际上是一个有序映射。映射是一种把 values 关联到 keys 的类型。<br>    通过&lt;?php $arr = array(1, 2, 3, 4); 便定义了一个普通数组<br>    我们还可以定义关联数组</p>
+<p>&lt;?php  $arr = array(‘a’ =&gt; 1, ‘z’ =&gt; 100); &gt;<br>  ……<br>    如果php版本 &gt;= 5.4 , 我们可以使用更为简洁的方式定义数组</p>
+<p>&lt;?php<br>$arr = [1, 2, 3, 4];<br>$arr = [‘a’ =&gt; 1, ‘z’ =&gt; 100];<br>    php 数组很强大， 可以定义混合类型数组</p>
+<p>&lt;?php<br>$arr = [1, ‘hello’ =&gt; ‘11’, ‘arr’ =&gt; [1, ‘a’=&gt;’b’]];<br>……<br>    关于数组的访问操作，可以通过[index] 访问：</p>
+<p>&lt;?php<br>$arr = [1, ‘hello’ =&gt; ‘11’, ‘arr’ =&gt; [1, ‘a’=&gt;’b’]];<br>var_dump($arr[0]); // 1<br>var_dump($arr[‘arr’]); // [1, ‘a’ =&gt; ‘b’]<br>……<br>    也可以通过[] 修改数组元素的值</p>
+<p>&lt;?php<br>$arr = [1, ‘hello’ =&gt; ‘11’, ‘arr’ =&gt; [1, ‘a’=&gt;’b’]];<br>$arr[0] = ‘test’;<br>var_dump($arr);<br>……<br>    你也可以在初始化数组继续添加数组元素</p>
+<p>&lt;?php<br>$arr = [1, 2, 3, 4];<br>//追加元素<br>$arr[] = ‘a’;<br>// 添加 key, value<br>$arr[‘test’] = ‘b’;<br>……<br>    当然，删除数组元素的操作必须支持</p>
+<p>&lt;?php<br>$arr = [1, ‘hello’ =&gt; ‘11’, ‘arr’ =&gt; [1, ‘a’=&gt;’b’]];<br>unset($arr[‘hello’]);<br>var_dump($arr[‘hello’]);  // null<br>……<br>    开发中经常需要遍历数组, 可使用 foreach ：</p>
+<p>&lt;?php<br>$arr = [1, ‘hello’ =&gt; ‘11’, ‘arr’ =&gt; [1, ‘a’=&gt;’b’]];<br>foreach($arr as $key =&gt; $value) {<br>    var_dump($key . ‘ =&gt; ‘ . $value);<br>}<br>……<br>更多数组遍历的方法请参考php-数组遍历</p>
+<ul>
+<li>数组之间的比较，数组无法比较大小， 但可以根据一定条件判断是否相等</li>
+</ul>
+<p>&lt;?php<br>// $a == $b 相等 如果 $a 和 $b 具有相同的键／值对则为 TRUE。<br>// $a === $b 全等 如果 $a 和 $b 具有相同的键／值对并且顺序和类型都相同则为 TRUE。</p>
+<p>$a = [1, 2];<br>$b = [‘1’ =&gt; 2, 0 =&gt; 1];</p>
+<p>var_dump($a == $b); // true<br>var_dump($a === $b); // false</p>
+<p>三、实用的数组工具函数<br>掌握了数组的基本操作(定义使用，增删改查， 遍历) 之后，你就可以在开发中使用数组， 但只有这些操作是远远不够的，为了满足复杂多变的开发场景对数组操作的需求，PHP 提供了功能强大的一套 Array 操作的函数<br>……</p>
+<ul>
+<li>获取数组长度</li>
+</ul>
+<p>&lt;?php<br>$arr = [1, 2, 3];<br>var_dump(count($arr)); // 3<br>……<br>    希望判断一个变量是否是数组，可以通过 is_array()：</p>
+<p>&lt;?php<br>$arr = [1, 2, 3];<br>$notArr = ‘111’;<br>var_dump(is_array($arr)); // true<br>var_dump(is_array($notArr)); // false<br>……<br>    更具key 或者 value， 判断元素 是否在数组中</p>
+<p>// 判断key 是否在数组中<br>$arr = [‘a’ =&gt; 2, 4];<br>var_dump(isset($arr[‘a’])); // true<br>var_dump(array_key_exists(‘a’, $arr)); // true</p>
+<p>// 判断 value 是否在数组中<br>in_array(5, $arr);  // false<br>    获取数组所有键(keys)</p>
+<p>&lt;?php<br>$arr = [‘a’ =&gt; 2, 4];<br>$keys = array_keys($arr); // [‘a’, 1]<br>……<br>    获取数组的所有值 (values)</p>
+<p>&lt;?php<br>$arr = [‘a’ =&gt; 2, 4];<br>$values = array_values($arr); // [2, 4]<br>……<br>    统计数组各个元素值出现的次数 可以使用 array_count_values：</p>
+<p>&lt;?php<br>$arr = [1, 3, 2, ‘a’ =&gt; 1, ‘b’ =&gt; 2];<br>var_dump(array_count_values($arr));<br>/<em><br>array(3) {<br>  [1]=&gt;<br>  int(2)<br>  [3]=&gt;<br>  int(1)<br>  [2]=&gt;<br>  int(2)<br>}
+</em>/</p>
+<p>数组与数组之间的操作：数组可以看做一个集合， 集合间的操作(交集，差集，并集， 补集， 比较等) php 也提供相应的方法实现<br>……<br>    数组的合并<br>&lt;?php<br>$arr1 = [‘a’ =&gt; 1, 2, ‘b’ =&gt; 3];<br>$arr2 = [‘b’ =&gt; 5, 2];<br>var_dump( array_merge($arr1, $arr2) );<br>/*<br>array(4) {<br>  [“a”]=&gt;<br>  int(1)<br>  [0]=&gt;<br>  int(2)<br>  [“b”]=&gt;<br>  int(5)<br>  [1]=&gt;<br>  int(2)<br>}</p>
+<p>// 你也可以使用 + 操作符, 请注意两种方法结果的差别<br>var_dump($arr1 + $arr2);<br>*/<br>    如果是需要计算两个或跟多数组value的交集, 可使用 array_intersect</p>
+<p>&lt;?php<br>$arr1 = [1, 2, 3];<br>$arr2 = [5, 2];<br>var_dump( array_intersect($arr1, $arr2) );  // [2]<br>……<br>    数组的差集 (按值value 和 按key)</p>
+<p>&lt;?php<br>$a = [1, 2];<br>$b = [‘1’ =&gt; 2, 0 =&gt; 1, 4];</p>
+<p>//array_diff 按照索引 和 值 比较差异<br>var_dump(array_diff($a, $b));</p>
+<p>// array_diff_key() 函数用于比较两个（或更多个）数组的键名 ，并返回差集<br>var_dump(array_diff_key($a, $b));<br>……<br>    如果需要获取子数组， 可以通过 array_slice 产生类似 python 切片的效果</p>
+<p>&lt;?php<br>$arr = [1, 2, 3, 4, 5, 6, 7, 8];<br>// 从第3个元素开始, 直到结束<br>var_dump(array_slice($arr, 2));</p>
+<p>// 从第3个元素开始, 长度为4<br>var_dump(array_slice($arr, 2, 4));</p>
+<p>// 从第3个元素开始，到倒数第3个元素<br>var_dump(array_slice($arr, 2, -2));</p>
+<p>// 注意 索引的差别<br>var_dump(array_slice($arr, 2, -2, true));<br>……<br>    关于数组的排序操作，也是比较常见的开发需求，需要注意的是：php排序函数都是直接作用于数组本身， 而不是返回一个新的有序的数组。, 以下代码提供几种常见的场景， 更多请参考php对数组进行排序：</p>
+<p>&lt;?php</p>
+<p>// 按照值(value)升序排序, 索引更新<br>$arr = [6,’a’=&gt;2, 3, 4, 6, -1, 7, 8];<br>sort($arr);<br>var_dump($arr);</p>
+<p>// 按照值(value)升序排序, 索引保持<br>$arr = [6,’a’=&gt;2, 3, 4, 6, -1, 7, 8];<br>asort($arr);<br>var_dump($arr);</p>
+<p>// 按照值(value)降序排序, 索引保持<br>$arr = [6,’a’=&gt;2, 3, 4, 6, -1, 7, 8];<br>arsort($arr);<br>var_dump($arr);</p>
+<p>// 按照 键(key)进行升序排序 , 索引保持<br>$arr = [‘a’ =&gt; 10, ‘c’ =&gt; 1, ‘b’ =&gt; 12];<br>ksort($arr);<br>var_dump($arr);</p>
+<p>// 按照 键(key)进行降序排序 , 索引保持<br>$arr = [‘a’ =&gt; 10, ‘c’ =&gt; 1, ‘b’ =&gt; 12];<br>krsort($arr);<br>var_dump($arr);</p>
+<p>// 用户自定义排序, 根据值(value) , 索引更新<br>// 请注意：对于自定义的比较函数，<br>// 在第一个参数小于，等于或大于第二个参数时，<br>// 该比较函数必须相应地返回一个小于，等于或大于 0 的整数。<br>function cmp($val1, $val2)<br>{<br>    if($val1 &gt; $val2) {<br>        return 1;<br>    } elseif ($val1 == $val2) {<br>        return 0;<br>    } else {<br>        return -1;<br>    }<br>}</p>
+<p>$arr = [<br>    ‘a’ =&gt; 1,<br>    ‘A’ =&gt; 3,<br>    ‘B’ =&gt; 2,<br>];</p>
+<p>usort($arr, cmp);<br>var_dump($arr);</p>
+<p>// 根据key 自定义排序规则，请使用 uksort(), 用法同usort()<br>……<br>    关于数组与字符串之间的操作一般有切割字符串，合并数组元素转为字符串两种操作，可以借助explode与implode实现<br>&lt;?php<br>var_dump(explode(‘,’, “a,a,a,a,a,a”)); // 以,为分割符将字符串”a,a,a,a,a,a” 切割成数组</p>
+<p>var_dump(implode(‘-‘, [1, 2, 3, 4, 5])); //以 - 为 拼接符 将 数组[1, 2, 3, 4, 5] 拼接成字符串</p>
+<p>关于php 更多数组相关的函数， 可以参考 官方文档php数组函数列表<br>四、数组模拟常见数据结构</p>
+<p>php 数组可以模拟常见的数据结构，最显而易见的便是 映射表 和 字典， 这里简单介绍php数组对栈和队列的模拟。<br>    模拟栈(FILO)</p>
+<p>&lt;?php<br>$stack = [1, 2, 3, 4];</p>
+<p>//入栈<br>array_push($stack, -1);<br>var_dump($stack); // [1, 2, 3, 4, -1]</p>
+<p>//出栈<br>$e = array_pop($stack);<br>var_dump($e); // -1<br>var_dump($stack);  // [1, 2, 3, 4]<br>    模拟队列 (FIFO)</p>
+<p>&lt;?php<br>$queue = [];</p>
+<p>//入队列<br>array_unshift($queue, 1);<br>array_unshift($queue, 2);<br>array_unshift($queue, 3);<br>array_unshift($queue, 4);</p>
+<p>//出队列<br>$e = array_pop($queue);<br>var_dump($e); // 1<br>$e = array_pop($queue);<br>var_dump($e); // 2<br>$e = array_pop($queue);<br>var_dump($e); // 3<br>$e = array_pop($queue);<br>var_dump($e); // 4</p>
+<p>五、php数组使用须知与注意点<br>    php 数组 key值 会存在以下强制转换<br>        包含有合法整型值的字符串会被转换为整型。例如键名 “8” 实际会被储存为 8。但是 “08” 则不会强制转换，因为其不是一个合法的十进制数值。<br>        浮点数也会被转换为整型，意味着其小数部分会被舍去。例如键名 8.7 实际会被储存为 8。<br>        布尔值也会被转换成整型。即键名 true 实际会被储存为 1 而键名 false 会被储存为 0。<br>        Null 会被转换为空字符串，即键名 null 实际会被储存为 “”。<br>        数组和对象不能被用为键名。坚持这么做会导致警告：Illegal offset type。</p>
+<p>因此以下代码可能导致意外的结果，请注意以下代码的输出：</p>
+<p>&lt;?php</p>
+<p>$arr = [1, 2, ‘8’ =&gt; 3];</p>
+<p>$arr[false] = -20;<br>var_dump($arr); // [-20, 2, ‘8’ =&gt; 3]</p>
+<p>$arr[8] = 20;<br>var_dump($arr); // [-20, 2, 8 =&gt; 20]</p>
+<p>$arr[8.7] = 15;<br>var_dump($arr); // [-20, 2, 8 =&gt; 15]</p>
+<p>$arr[“8.7”] = 10;<br>var_dump($arr); // [-20, 2, 8 =&gt; 10]</p>
+<p>$arr[$val]  = 5; // 注意$val之前为声明，因此默认值为null, 数组key为null时会被转为””空串<br>var_dump($arr); // [-20, 2, 8 =&gt; 10, “” =&gt; 5]</p>
+<p>$arr[bar] = 6; // 标识符被转化为 ‘bar’<br>var_dump($arr); // [-20, 2, 8 =&gt; 10, “” =&gt; 5, ‘bar’ =&gt; 6]</p>
+<p>……<br>    关于php数组的类型转换<br>    php数组可以将其他一切类型转为数组，转化的效果请参考一下代码，重点观察对 null 和 object对象的转化：</p>
+<p>&lt;?php</p>
+<p>$var = true;<br>var_dump((array)$var);<br>/<em> array(1) {<br>  [0]=&gt;<br>  bool(true)<br>}</em>/</p>
+<p>$var = 1;<br>var_dump((array)$var);<br>/<em> array(1) {<br>  [0]=&gt;<br>  int(1)<br>}</em>/</p>
+<p>$var = 1.1;<br>var_dump((array)$var);<br>/<em> array(1) {<br>  [0]=&gt;<br>  float(1.1)<br>}</em>/</p>
+<p>$var = “111”;<br>var_dump((array)$var);<br>/<em> array(1) {<br>  [0]=&gt;<br>  string(3) “111”<br>}</em>/</p>
+<p>$var = null;<br>var_dump((array)$var);  // 返回空数组<br>/<em> array(0) {<br>} </em>/</p>
+<p>class Cls { public $a = 1; protected $b = 2; private $c = 3; }<br>var_dump((array)(new Cls)); // 可见性不同 key值格式有所不同<br>/<em> array(3) {<br>  [“a”]=&gt;<br>  int(1)<br>  [“</em>b”]=&gt;<br>  int(2)<br>  [“Clsc”]=&gt;<br>  int(3)<br>} */</p>
+<p>关于PHP类型转换的了解，请参考PHP-类型转换的判别<br>六、FAQ<br>……<br>    如何添加数组元素更为高效? array_push($arr, key, value) or $arr[key] = value ? 答： 后者更为高效， 更多细节请参考官方资料<br>    isset or array_key_exists() ? 答：<br>        对于存在key的数组，如果 对应的value = null ， isset($arr[key]) 会返回 false；而对于array_key_exists 只要对应key存在就会返回true；<br>        然而在效率方面，isset 效率 高于array_key_eixsts</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/06/01/lnmp-01/" class="next">NEXT</a></div><div class="copyright"><p>© 2016 <a href="http://xwzmsdqbjzyyg.github.io">陈长生</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>

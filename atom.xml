@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>我的博客</title>
+  <title>一天进步一点</title>
   <subtitle>一天进步一点</subtitle>
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xwzmsdqbjzyyg.github.io/"/>
-  <updated>2016-05-25T09:05:47.868Z</updated>
+  <updated>2016-06-08T07:22:23.084Z</updated>
   <id>http://xwzmsdqbjzyyg.github.io/</id>
   
   <author>
@@ -14,6 +14,406 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>PHP 数组浅析</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/06/08/array-01/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/06/08/array-01/</id>
+    <published>2016-06-08T07:06:04.000Z</published>
+    <updated>2016-06-08T07:22:23.084Z</updated>
+    
+    <content type="html">&lt;p&gt;一、概要&lt;br&gt;    简单介绍及基本使用&lt;br&gt;    php数组 常用标准库函数使用&lt;br&gt;    php数组模拟常见数据结构&lt;br&gt;    php数组使用须知与注意点&lt;br&gt;    FAQ&lt;br&gt;二、简单介绍及基本使用&lt;br&gt;    PHP 中的数组实际上是一个有序映射。映射是一种把 values 关联到 keys 的类型。&lt;br&gt;    通过&amp;lt;?php $arr = array(1, 2, 3, 4); 便定义了一个普通数组&lt;br&gt;    我们还可以定义关联数组&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php  $arr = array(‘a’ =&amp;gt; 1, ‘z’ =&amp;gt; 100); &amp;gt;&lt;br&gt;  ……&lt;br&gt;    如果php版本 &amp;gt;= 5.4 , 我们可以使用更为简洁的方式定义数组&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, 2, 3, 4];&lt;br&gt;$arr = [‘a’ =&amp;gt; 1, ‘z’ =&amp;gt; 100];&lt;br&gt;    php 数组很强大， 可以定义混合类型数组&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, ‘hello’ =&amp;gt; ‘11’, ‘arr’ =&amp;gt; [1, ‘a’=&amp;gt;’b’]];&lt;br&gt;……&lt;br&gt;    关于数组的访问操作，可以通过[index] 访问：&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, ‘hello’ =&amp;gt; ‘11’, ‘arr’ =&amp;gt; [1, ‘a’=&amp;gt;’b’]];&lt;br&gt;var_dump($arr[0]); // 1&lt;br&gt;var_dump($arr[‘arr’]); // [1, ‘a’ =&amp;gt; ‘b’]&lt;br&gt;……&lt;br&gt;    也可以通过[] 修改数组元素的值&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, ‘hello’ =&amp;gt; ‘11’, ‘arr’ =&amp;gt; [1, ‘a’=&amp;gt;’b’]];&lt;br&gt;$arr[0] = ‘test’;&lt;br&gt;var_dump($arr);&lt;br&gt;……&lt;br&gt;    你也可以在初始化数组继续添加数组元素&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, 2, 3, 4];&lt;br&gt;//追加元素&lt;br&gt;$arr[] = ‘a’;&lt;br&gt;// 添加 key, value&lt;br&gt;$arr[‘test’] = ‘b’;&lt;br&gt;……&lt;br&gt;    当然，删除数组元素的操作必须支持&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, ‘hello’ =&amp;gt; ‘11’, ‘arr’ =&amp;gt; [1, ‘a’=&amp;gt;’b’]];&lt;br&gt;unset($arr[‘hello’]);&lt;br&gt;var_dump($arr[‘hello’]);  // null&lt;br&gt;……&lt;br&gt;    开发中经常需要遍历数组, 可使用 foreach ：&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, ‘hello’ =&amp;gt; ‘11’, ‘arr’ =&amp;gt; [1, ‘a’=&amp;gt;’b’]];&lt;br&gt;foreach($arr as $key =&amp;gt; $value) {&lt;br&gt;    var_dump($key . ‘ =&amp;gt; ‘ . $value);&lt;br&gt;}&lt;br&gt;……&lt;br&gt;更多数组遍历的方法请参考php-数组遍历&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;数组之间的比较，数组无法比较大小， 但可以根据一定条件判断是否相等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;// $a == $b 相等 如果 $a 和 $b 具有相同的键／值对则为 TRUE。&lt;br&gt;// $a === $b 全等 如果 $a 和 $b 具有相同的键／值对并且顺序和类型都相同则为 TRUE。&lt;/p&gt;
+&lt;p&gt;$a = [1, 2];&lt;br&gt;$b = [‘1’ =&amp;gt; 2, 0 =&amp;gt; 1];&lt;/p&gt;
+&lt;p&gt;var_dump($a == $b); // true&lt;br&gt;var_dump($a === $b); // false&lt;/p&gt;
+&lt;p&gt;三、实用的数组工具函数&lt;br&gt;掌握了数组的基本操作(定义使用，增删改查， 遍历) 之后，你就可以在开发中使用数组， 但只有这些操作是远远不够的，为了满足复杂多变的开发场景对数组操作的需求，PHP 提供了功能强大的一套 Array 操作的函数&lt;br&gt;……&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;获取数组长度&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, 2, 3];&lt;br&gt;var_dump(count($arr)); // 3&lt;br&gt;……&lt;br&gt;    希望判断一个变量是否是数组，可以通过 is_array()：&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, 2, 3];&lt;br&gt;$notArr = ‘111’;&lt;br&gt;var_dump(is_array($arr)); // true&lt;br&gt;var_dump(is_array($notArr)); // false&lt;br&gt;……&lt;br&gt;    更具key 或者 value， 判断元素 是否在数组中&lt;/p&gt;
+&lt;p&gt;// 判断key 是否在数组中&lt;br&gt;$arr = [‘a’ =&amp;gt; 2, 4];&lt;br&gt;var_dump(isset($arr[‘a’])); // true&lt;br&gt;var_dump(array_key_exists(‘a’, $arr)); // true&lt;/p&gt;
+&lt;p&gt;// 判断 value 是否在数组中&lt;br&gt;in_array(5, $arr);  // false&lt;br&gt;    获取数组所有键(keys)&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [‘a’ =&amp;gt; 2, 4];&lt;br&gt;$keys = array_keys($arr); // [‘a’, 1]&lt;br&gt;……&lt;br&gt;    获取数组的所有值 (values)&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [‘a’ =&amp;gt; 2, 4];&lt;br&gt;$values = array_values($arr); // [2, 4]&lt;br&gt;……&lt;br&gt;    统计数组各个元素值出现的次数 可以使用 array_count_values：&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, 3, 2, ‘a’ =&amp;gt; 1, ‘b’ =&amp;gt; 2];&lt;br&gt;var_dump(array_count_values($arr));&lt;br&gt;/&lt;em&gt;&lt;br&gt;array(3) {&lt;br&gt;  [1]=&amp;gt;&lt;br&gt;  int(2)&lt;br&gt;  [3]=&amp;gt;&lt;br&gt;  int(1)&lt;br&gt;  [2]=&amp;gt;&lt;br&gt;  int(2)&lt;br&gt;}
+&lt;/em&gt;/&lt;/p&gt;
+&lt;p&gt;数组与数组之间的操作：数组可以看做一个集合， 集合间的操作(交集，差集，并集， 补集， 比较等) php 也提供相应的方法实现&lt;br&gt;……&lt;br&gt;    数组的合并&lt;br&gt;&amp;lt;?php&lt;br&gt;$arr1 = [‘a’ =&amp;gt; 1, 2, ‘b’ =&amp;gt; 3];&lt;br&gt;$arr2 = [‘b’ =&amp;gt; 5, 2];&lt;br&gt;var_dump( array_merge($arr1, $arr2) );&lt;br&gt;/*&lt;br&gt;array(4) {&lt;br&gt;  [“a”]=&amp;gt;&lt;br&gt;  int(1)&lt;br&gt;  [0]=&amp;gt;&lt;br&gt;  int(2)&lt;br&gt;  [“b”]=&amp;gt;&lt;br&gt;  int(5)&lt;br&gt;  [1]=&amp;gt;&lt;br&gt;  int(2)&lt;br&gt;}&lt;/p&gt;
+&lt;p&gt;// 你也可以使用 + 操作符, 请注意两种方法结果的差别&lt;br&gt;var_dump($arr1 + $arr2);&lt;br&gt;*/&lt;br&gt;    如果是需要计算两个或跟多数组value的交集, 可使用 array_intersect&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr1 = [1, 2, 3];&lt;br&gt;$arr2 = [5, 2];&lt;br&gt;var_dump( array_intersect($arr1, $arr2) );  // [2]&lt;br&gt;……&lt;br&gt;    数组的差集 (按值value 和 按key)&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$a = [1, 2];&lt;br&gt;$b = [‘1’ =&amp;gt; 2, 0 =&amp;gt; 1, 4];&lt;/p&gt;
+&lt;p&gt;//array_diff 按照索引 和 值 比较差异&lt;br&gt;var_dump(array_diff($a, $b));&lt;/p&gt;
+&lt;p&gt;// array_diff_key() 函数用于比较两个（或更多个）数组的键名 ，并返回差集&lt;br&gt;var_dump(array_diff_key($a, $b));&lt;br&gt;……&lt;br&gt;    如果需要获取子数组， 可以通过 array_slice 产生类似 python 切片的效果&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$arr = [1, 2, 3, 4, 5, 6, 7, 8];&lt;br&gt;// 从第3个元素开始, 直到结束&lt;br&gt;var_dump(array_slice($arr, 2));&lt;/p&gt;
+&lt;p&gt;// 从第3个元素开始, 长度为4&lt;br&gt;var_dump(array_slice($arr, 2, 4));&lt;/p&gt;
+&lt;p&gt;// 从第3个元素开始，到倒数第3个元素&lt;br&gt;var_dump(array_slice($arr, 2, -2));&lt;/p&gt;
+&lt;p&gt;// 注意 索引的差别&lt;br&gt;var_dump(array_slice($arr, 2, -2, true));&lt;br&gt;……&lt;br&gt;    关于数组的排序操作，也是比较常见的开发需求，需要注意的是：php排序函数都是直接作用于数组本身， 而不是返回一个新的有序的数组。, 以下代码提供几种常见的场景， 更多请参考php对数组进行排序：&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;/p&gt;
+&lt;p&gt;// 按照值(value)升序排序, 索引更新&lt;br&gt;$arr = [6,’a’=&amp;gt;2, 3, 4, 6, -1, 7, 8];&lt;br&gt;sort($arr);&lt;br&gt;var_dump($arr);&lt;/p&gt;
+&lt;p&gt;// 按照值(value)升序排序, 索引保持&lt;br&gt;$arr = [6,’a’=&amp;gt;2, 3, 4, 6, -1, 7, 8];&lt;br&gt;asort($arr);&lt;br&gt;var_dump($arr);&lt;/p&gt;
+&lt;p&gt;// 按照值(value)降序排序, 索引保持&lt;br&gt;$arr = [6,’a’=&amp;gt;2, 3, 4, 6, -1, 7, 8];&lt;br&gt;arsort($arr);&lt;br&gt;var_dump($arr);&lt;/p&gt;
+&lt;p&gt;// 按照 键(key)进行升序排序 , 索引保持&lt;br&gt;$arr = [‘a’ =&amp;gt; 10, ‘c’ =&amp;gt; 1, ‘b’ =&amp;gt; 12];&lt;br&gt;ksort($arr);&lt;br&gt;var_dump($arr);&lt;/p&gt;
+&lt;p&gt;// 按照 键(key)进行降序排序 , 索引保持&lt;br&gt;$arr = [‘a’ =&amp;gt; 10, ‘c’ =&amp;gt; 1, ‘b’ =&amp;gt; 12];&lt;br&gt;krsort($arr);&lt;br&gt;var_dump($arr);&lt;/p&gt;
+&lt;p&gt;// 用户自定义排序, 根据值(value) , 索引更新&lt;br&gt;// 请注意：对于自定义的比较函数，&lt;br&gt;// 在第一个参数小于，等于或大于第二个参数时，&lt;br&gt;// 该比较函数必须相应地返回一个小于，等于或大于 0 的整数。&lt;br&gt;function cmp($val1, $val2)&lt;br&gt;{&lt;br&gt;    if($val1 &amp;gt; $val2) {&lt;br&gt;        return 1;&lt;br&gt;    } elseif ($val1 == $val2) {&lt;br&gt;        return 0;&lt;br&gt;    } else {&lt;br&gt;        return -1;&lt;br&gt;    }&lt;br&gt;}&lt;/p&gt;
+&lt;p&gt;$arr = [&lt;br&gt;    ‘a’ =&amp;gt; 1,&lt;br&gt;    ‘A’ =&amp;gt; 3,&lt;br&gt;    ‘B’ =&amp;gt; 2,&lt;br&gt;];&lt;/p&gt;
+&lt;p&gt;usort($arr, cmp);&lt;br&gt;var_dump($arr);&lt;/p&gt;
+&lt;p&gt;// 根据key 自定义排序规则，请使用 uksort(), 用法同usort()&lt;br&gt;……&lt;br&gt;    关于数组与字符串之间的操作一般有切割字符串，合并数组元素转为字符串两种操作，可以借助explode与implode实现&lt;br&gt;&amp;lt;?php&lt;br&gt;var_dump(explode(‘,’, “a,a,a,a,a,a”)); // 以,为分割符将字符串”a,a,a,a,a,a” 切割成数组&lt;/p&gt;
+&lt;p&gt;var_dump(implode(‘-‘, [1, 2, 3, 4, 5])); //以 - 为 拼接符 将 数组[1, 2, 3, 4, 5] 拼接成字符串&lt;/p&gt;
+&lt;p&gt;关于php 更多数组相关的函数， 可以参考 官方文档php数组函数列表&lt;br&gt;四、数组模拟常见数据结构&lt;/p&gt;
+&lt;p&gt;php 数组可以模拟常见的数据结构，最显而易见的便是 映射表 和 字典， 这里简单介绍php数组对栈和队列的模拟。&lt;br&gt;    模拟栈(FILO)&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$stack = [1, 2, 3, 4];&lt;/p&gt;
+&lt;p&gt;//入栈&lt;br&gt;array_push($stack, -1);&lt;br&gt;var_dump($stack); // [1, 2, 3, 4, -1]&lt;/p&gt;
+&lt;p&gt;//出栈&lt;br&gt;$e = array_pop($stack);&lt;br&gt;var_dump($e); // -1&lt;br&gt;var_dump($stack);  // [1, 2, 3, 4]&lt;br&gt;    模拟队列 (FIFO)&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;br&gt;$queue = [];&lt;/p&gt;
+&lt;p&gt;//入队列&lt;br&gt;array_unshift($queue, 1);&lt;br&gt;array_unshift($queue, 2);&lt;br&gt;array_unshift($queue, 3);&lt;br&gt;array_unshift($queue, 4);&lt;/p&gt;
+&lt;p&gt;//出队列&lt;br&gt;$e = array_pop($queue);&lt;br&gt;var_dump($e); // 1&lt;br&gt;$e = array_pop($queue);&lt;br&gt;var_dump($e); // 2&lt;br&gt;$e = array_pop($queue);&lt;br&gt;var_dump($e); // 3&lt;br&gt;$e = array_pop($queue);&lt;br&gt;var_dump($e); // 4&lt;/p&gt;
+&lt;p&gt;五、php数组使用须知与注意点&lt;br&gt;    php 数组 key值 会存在以下强制转换&lt;br&gt;        包含有合法整型值的字符串会被转换为整型。例如键名 “8” 实际会被储存为 8。但是 “08” 则不会强制转换，因为其不是一个合法的十进制数值。&lt;br&gt;        浮点数也会被转换为整型，意味着其小数部分会被舍去。例如键名 8.7 实际会被储存为 8。&lt;br&gt;        布尔值也会被转换成整型。即键名 true 实际会被储存为 1 而键名 false 会被储存为 0。&lt;br&gt;        Null 会被转换为空字符串，即键名 null 实际会被储存为 “”。&lt;br&gt;        数组和对象不能被用为键名。坚持这么做会导致警告：Illegal offset type。&lt;/p&gt;
+&lt;p&gt;因此以下代码可能导致意外的结果，请注意以下代码的输出：&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;/p&gt;
+&lt;p&gt;$arr = [1, 2, ‘8’ =&amp;gt; 3];&lt;/p&gt;
+&lt;p&gt;$arr[false] = -20;&lt;br&gt;var_dump($arr); // [-20, 2, ‘8’ =&amp;gt; 3]&lt;/p&gt;
+&lt;p&gt;$arr[8] = 20;&lt;br&gt;var_dump($arr); // [-20, 2, 8 =&amp;gt; 20]&lt;/p&gt;
+&lt;p&gt;$arr[8.7] = 15;&lt;br&gt;var_dump($arr); // [-20, 2, 8 =&amp;gt; 15]&lt;/p&gt;
+&lt;p&gt;$arr[“8.7”] = 10;&lt;br&gt;var_dump($arr); // [-20, 2, 8 =&amp;gt; 10]&lt;/p&gt;
+&lt;p&gt;$arr[$val]  = 5; // 注意$val之前为声明，因此默认值为null, 数组key为null时会被转为””空串&lt;br&gt;var_dump($arr); // [-20, 2, 8 =&amp;gt; 10, “” =&amp;gt; 5]&lt;/p&gt;
+&lt;p&gt;$arr[bar] = 6; // 标识符被转化为 ‘bar’&lt;br&gt;var_dump($arr); // [-20, 2, 8 =&amp;gt; 10, “” =&amp;gt; 5, ‘bar’ =&amp;gt; 6]&lt;/p&gt;
+&lt;p&gt;……&lt;br&gt;    关于php数组的类型转换&lt;br&gt;    php数组可以将其他一切类型转为数组，转化的效果请参考一下代码，重点观察对 null 和 object对象的转化：&lt;/p&gt;
+&lt;p&gt;&amp;lt;?php&lt;/p&gt;
+&lt;p&gt;$var = true;&lt;br&gt;var_dump((array)$var);&lt;br&gt;/&lt;em&gt; array(1) {&lt;br&gt;  [0]=&amp;gt;&lt;br&gt;  bool(true)&lt;br&gt;}&lt;/em&gt;/&lt;/p&gt;
+&lt;p&gt;$var = 1;&lt;br&gt;var_dump((array)$var);&lt;br&gt;/&lt;em&gt; array(1) {&lt;br&gt;  [0]=&amp;gt;&lt;br&gt;  int(1)&lt;br&gt;}&lt;/em&gt;/&lt;/p&gt;
+&lt;p&gt;$var = 1.1;&lt;br&gt;var_dump((array)$var);&lt;br&gt;/&lt;em&gt; array(1) {&lt;br&gt;  [0]=&amp;gt;&lt;br&gt;  float(1.1)&lt;br&gt;}&lt;/em&gt;/&lt;/p&gt;
+&lt;p&gt;$var = “111”;&lt;br&gt;var_dump((array)$var);&lt;br&gt;/&lt;em&gt; array(1) {&lt;br&gt;  [0]=&amp;gt;&lt;br&gt;  string(3) “111”&lt;br&gt;}&lt;/em&gt;/&lt;/p&gt;
+&lt;p&gt;$var = null;&lt;br&gt;var_dump((array)$var);  // 返回空数组&lt;br&gt;/&lt;em&gt; array(0) {&lt;br&gt;} &lt;/em&gt;/&lt;/p&gt;
+&lt;p&gt;class Cls { public $a = 1; protected $b = 2; private $c = 3; }&lt;br&gt;var_dump((array)(new Cls)); // 可见性不同 key值格式有所不同&lt;br&gt;/&lt;em&gt; array(3) {&lt;br&gt;  [“a”]=&amp;gt;&lt;br&gt;  int(1)&lt;br&gt;  [“&lt;/em&gt;b”]=&amp;gt;&lt;br&gt;  int(2)&lt;br&gt;  [“Clsc”]=&amp;gt;&lt;br&gt;  int(3)&lt;br&gt;} */&lt;/p&gt;
+&lt;p&gt;关于PHP类型转换的了解，请参考PHP-类型转换的判别&lt;br&gt;六、FAQ&lt;br&gt;……&lt;br&gt;    如何添加数组元素更为高效? array_push($arr, key, value) or $arr[key] = value ? 答： 后者更为高效， 更多细节请参考官方资料&lt;br&gt;    isset or array_key_exists() ? 答：&lt;br&gt;        对于存在key的数组，如果 对应的value = null ， isset($arr[key]) 会返回 false；而对于array_key_exists 只要对应key存在就会返回true；&lt;br&gt;        然而在效率方面，isset 效率 高于array_key_eixsts&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;一、概要&lt;br&gt;    简单介绍及基本使用&lt;br&gt;    php数组 常用标准库函数使用&lt;br&gt;    php数组模拟常见数据结构&lt;br&gt;    php数组使用须知与注意点&lt;br&gt;    FAQ&lt;br&gt;二、简单介绍及基本使用&lt;br&gt;    PHP 中的数组实际上是一个有序映
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>配置lnmp</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/06/01/lnmp-01/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/06/01/lnmp-01/</id>
+    <published>2016-06-01T08:12:56.000Z</published>
+    <updated>2016-06-08T07:12:22.301Z</updated>
+    
+    <content type="html">&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;第一步：Apache安装(已更新到2.2.22)&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;下载 去 &lt;a href=&quot;http://www.apache.org&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.apache.org&lt;/a&gt; 自己找新的&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://httpd.apache.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://httpd.apache.org/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt; 国内有很多镜像点例如”人人”和”163”&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://labs.renren.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://labs.renren.com/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;注意要找httpd，因为apache下有很多项目，其中httpd就是web服务器&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://labs.renren.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://labs.renren.com/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;英文文档：&lt;a href=&quot;http://httpd.apache.org/docs/2.2/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://httpd.apache.org/docs/2.2/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;中文文档： &lt;a href=&quot;http://www.php100.com/manual/apache2/index.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.php100.com/manual/apache2/index.html&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;#wget &lt;a href=&quot;http://labs.renren.com/apache-mirror/httpd/httpd-2.2.22.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://labs.renren.com/apache-mirror/httpd/httpd-2.2.22.tar.gz&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;#tar zxvf httpd-2.2.22.tar.gz&lt;/p&gt;
+&lt;p&gt;#cd ./httpd-2.2.22&lt;/p&gt;
+&lt;p&gt;#./configure –prefix=/usr/local/apache2/ –enable-proxy –enable-ssl –enable-cgi –enable-rewrite –enable-so –enable-module=so&lt;/p&gt;
+&lt;p&gt;#make&lt;/p&gt;
+&lt;p&gt;#make install&lt;/p&gt;
+&lt;p&gt;说明：如果make不成功，那么是configure不成，例如你缺少ssl组件，可以去掉&lt;/p&gt;
+&lt;h2 id=&quot;–enable-ssl&quot;&gt;&lt;a href=&quot;#–enable-ssl&quot; class=&quot;headerlink&quot; title=&quot;–enable-ssl&quot;&gt;&lt;/a&gt;–enable-ssl&lt;/h2&gt;&lt;p&gt;如果出现“No recognized SSL/TLS toolkit detected”错误&lt;/p&gt;
+&lt;p&gt;#yum -y install openssl openssl-devel&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;如果Make: command not found&lt;/p&gt;
+&lt;p&gt;看看是不是make没装&lt;/p&gt;
+&lt;h1 id=&quot;rpm-qa-grep-make&quot;&gt;&lt;a href=&quot;#rpm-qa-grep-make&quot; class=&quot;headerlink&quot; title=&quot;rpm -qa|grep make&quot;&gt;&lt;/a&gt;rpm -qa|grep make&lt;/h1&gt;&lt;p&gt;如果没有信息那么说明make没装&lt;/p&gt;
+&lt;h2 id=&quot;yum-install-make-即可&quot;&gt;&lt;a href=&quot;#yum-install-make-即可&quot; class=&quot;headerlink&quot; title=&quot;#yum install make 即可&quot;&gt;&lt;/a&gt;#yum install make 即可&lt;/h2&gt;&lt;p&gt;手动启动&lt;/p&gt;
+&lt;h1 id=&quot;usr-local-apache2-bin-apachectl-start&quot;&gt;&lt;a href=&quot;#usr-local-apache2-bin-apachectl-start&quot; class=&quot;headerlink&quot; title=&quot;/usr/local/apache2/bin/apachectl start&quot;&gt;&lt;/a&gt;/usr/local/apache2/bin/apachectl start&lt;/h1&gt;&lt;p&gt;重启&lt;/p&gt;
+&lt;h1 id=&quot;usr-local-apache2-bin-apachectl-restart&quot;&gt;&lt;a href=&quot;#usr-local-apache2-bin-apachectl-restart&quot; class=&quot;headerlink&quot; title=&quot;/usr/local/apache2/bin/apachectl restart&quot;&gt;&lt;/a&gt;/usr/local/apache2/bin/apachectl restart&lt;/h1&gt;&lt;p&gt; 如果报错说：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Could not reliably determine the server’s fully qualified domain name, using 127.0.1.1 for ServerName
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;需要修改/usr/local/apache2/conf/httpd.conf在&lt;/p&gt;
+&lt;p&gt;#serverName www.example.com:80&lt;/p&gt;
+&lt;p&gt;这个位置修改为：&lt;/p&gt;
+&lt;p&gt;serverName localhost:80&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;YUM自动安装的启动&lt;/p&gt;
+&lt;p&gt;#service httpd restart&lt;/p&gt;
+&lt;p&gt;输入这个会提示出错 httpd未被被识别的服务&lt;/p&gt;
+&lt;p&gt;这个请见本博客另一篇介绍&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;这就说明安装成功了。&lt;/p&gt;
+&lt;p&gt;自己在浏览器输入：&lt;a href=&quot;http://localhost/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://localhost/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这样就说明成功了！&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;防火墙配置&lt;/p&gt;
+&lt;p&gt;注意如果你希望在本地机器例如xp访问虚拟机的网页，如果是centos6需要修改防火墙启动80端口&lt;/p&gt;
+&lt;p&gt;/etc/sysconfig&lt;/p&gt;
+&lt;p&gt;[root@centos6 ~]# vim /etc/sysconfig/iptables&lt;/p&gt;
+&lt;p&gt;添加下面一行，打开防火墙80端口:&lt;/p&gt;
+&lt;p&gt;-A INPUT -m state –state NEW -m tcp -p tcp –dport 80 -j ACCEPT&lt;br&gt;重启防火墙&lt;/p&gt;
+&lt;p&gt;#/etc/init.d/iptables restart&lt;/p&gt;
+&lt;p&gt;查看CentOS防火墙信息：/etc/init.d/iptables status&lt;/p&gt;
+&lt;p&gt;关闭CentOS防火墙服务：/etc/init.d/iptables stop&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;开机加入自动启动服务&lt;/p&gt;
+&lt;p&gt;编辑rc.local文件&lt;/p&gt;
+&lt;p&gt;#vi /etc/rc.d/rc.local&lt;/p&gt;
+&lt;p&gt;加入如下启动命令&lt;br&gt;/usr/sbin/apachectl start&lt;br&gt;/etc/rc.d/init.d/mysqld start&lt;br&gt;/etc/rc.d/init.d/smb start&lt;br&gt;/usr/local/subversion/bin/svnserve -d&lt;/p&gt;
+&lt;p&gt;注意：我的这个路径是yum安装这些服务得到的路径，填写时要根据自己的安装路径，找不到可以借助whereis命令，主要是找到apachectl 、mysqld 、smb 这三个启动文件。&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;增加权限和文件格式转换（不然apache会报没权限执行文件）&lt;/p&gt;
+&lt;p&gt;#chmod +x   文件&lt;/p&gt;
+&lt;p&gt;#dos2unix   文件&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;ab测试&lt;/p&gt;
+&lt;p&gt;#ab -n 1000  -c  10 &lt;a href=&quot;http://localhost/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://localhost/&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;卸载apache&lt;/p&gt;
+&lt;p&gt;如果是源码安装&lt;/p&gt;
+&lt;p&gt;#rm   -rf   你的apache安装路径&lt;/p&gt;
+&lt;p&gt;同样作用于其他&lt;/p&gt;
+&lt;p&gt;========================&lt;/p&gt;
+&lt;p&gt;httpd启用虚拟主机&lt;/p&gt;
+&lt;p&gt;#Include conf/extra/httpd-vhosts.conf&lt;/p&gt;
+&lt;p&gt;httpd-vhosts.conf&lt;/p&gt;
+&lt;p&gt;&lt;virtualhost *:80=&quot;&quot;&gt;&lt;br&gt;    ServerAdmin webmaster@dummy-host.example.com&lt;br&gt;    DocumentRoot “/www/“&lt;/virtualhost&gt;&lt;/p&gt;
+&lt;p&gt;&lt;directory&gt;&lt;/directory&gt;&lt;/p&gt;
+&lt;p&gt;#拒绝所有请求&lt;/p&gt;
+&lt;h1 id=&quot;Deny-from-all&quot;&gt;&lt;a href=&quot;#Deny-from-all&quot; class=&quot;headerlink&quot; title=&quot;Deny from all&quot;&gt;&lt;/a&gt;Deny from all&lt;/h1&gt;&lt;p&gt;#是否显示列表&lt;/p&gt;
+&lt;h1 id=&quot;Options-Indexes-FollowSymLinks&quot;&gt;&lt;a href=&quot;#Options-Indexes-FollowSymLinks&quot; class=&quot;headerlink&quot; title=&quot;Options Indexes FollowSymLinks&quot;&gt;&lt;/a&gt;Options Indexes FollowSymLinks&lt;/h1&gt;&lt;p&gt;#是否启用rewrite&lt;/p&gt;
+&lt;h1 id=&quot;AllowOverride-all&quot;&gt;&lt;a href=&quot;#AllowOverride-all&quot; class=&quot;headerlink&quot; title=&quot;AllowOverride all&quot;&gt;&lt;/a&gt;AllowOverride all&lt;/h1&gt;&lt;p&gt;========================&lt;br&gt;YUM方式安装的，这样卸载：&lt;/p&gt;
+&lt;p&gt;#yum remove httpd&lt;/p&gt;
+&lt;p&gt;否则要用&lt;/p&gt;
+&lt;p&gt;#rpm -qa|grep httpd&lt;/p&gt;
+&lt;p&gt;一个个删除&lt;/p&gt;
+&lt;h1 id=&quot;rpm-e-……&quot;&gt;&lt;a href=&quot;#rpm-e-……&quot; class=&quot;headerlink&quot; title=&quot;rpm -e  ……&quot;&gt;&lt;/a&gt;rpm -e  ……&lt;/h1&gt;&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;第二步 MySQL安装&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;第一种方法：使用yum自动安装&lt;/p&gt;
+&lt;p&gt;#yum -y install mysql-server&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;第二种：下载源码编译安装&lt;/p&gt;
+&lt;p&gt;#wget &lt;a href=&quot;http://mysql.cdpa.nsysu.edu.tw/Downloads/MySQL-5.1/mysql-5.1.57.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://mysql.cdpa.nsysu.edu.tw/Downloads/MySQL-5.1/mysql-5.1.57.tar.gz&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;#tar zxvf mysql-5.1.57.tar.gz&lt;/p&gt;
+&lt;p&gt;#cd mysql-5.1.57&lt;/p&gt;
+&lt;p&gt;#./configure –prefix=/usr/local/mysql –with-mysqld-user=mysql –with-charset=gbk –bindir=/usr/local/bin –sbindir=/usr/local/sbin –with-plugins=innobase –with-partition&lt;/p&gt;
+&lt;p&gt;#make&lt;/p&gt;
+&lt;p&gt;#make install&lt;/p&gt;
+&lt;p&gt;#cd /usr/local/mysql&lt;/p&gt;
+&lt;p&gt;#mysql_install_db&lt;/p&gt;
+&lt;p&gt;#chown -R mysql:mysql *&lt;/p&gt;
+&lt;p&gt;#cp /usr/local/mysql/share/mysql/mysql.server /etc/init.d/mysql&lt;/p&gt;
+&lt;p&gt;#/etc/rc.d/mysql start (加入到/etc/rc.local 以便系统重启后自动启动mysql)&lt;/p&gt;
+&lt;p&gt;修改/etc/rc.local&lt;/p&gt;
+&lt;p&gt;说明：请修改mysql配置文件my.cnf中wait_timeout = 600（有些程序执行时间较长，mysql超时时间如果太短的话，容易发生mysql server has go away的错误）&lt;/p&gt;
+&lt;p&gt;注意事项：&lt;/p&gt;
+&lt;p&gt;安装完成后，需要拷贝一份my.cnf到ect目录下，使用support-files目录中的一个作为模板。在这个目录中有4个模板文件，是根据不同机器的内存定制的。&lt;/p&gt;
+&lt;p&gt;#cp support-files/my-medium.cnf /etc/my.cnf&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;第三步 PHP安装(已更新到5.4.8版)&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;去www.php.net找最新的版本&lt;/p&gt;
+&lt;p&gt;5.4安装&lt;/p&gt;
+&lt;p&gt;#wget  &lt;a href=&quot;http://cn2.php.net/get/php-5.4.8.tar.gz/from/this/mirror&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://cn2.php.net/get/php-5.4.8.tar.gz/from/this/mirror&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;#tar zxvf  php-5.4.8.tar.gz&lt;/p&gt;
+&lt;p&gt;#cd php-5.4.8&lt;/p&gt;
+&lt;p&gt;#./configure –prefix=/usr/local/php –with-apxs2=/usr/local/apache2/bin/apxs –with-mysql-dir=/usr/local/mysql&lt;/p&gt;
+&lt;p&gt;如果失败 可能原因有各种各样&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;如果提示：Cannot find MySQL header files under /date/mysql.&lt;/p&gt;
+&lt;p&gt;这个是缺少了 mysql-devel 安装包，用&lt;br&gt;yum -y install mysql-devel 即可解决！&lt;/p&gt;
+&lt;p&gt;#yum -y install mysql-devel&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;如果提示：xml2-config not found. Please check your libxml2 installation.&lt;/p&gt;
+&lt;p&gt;需要安装libxml2&lt;/p&gt;
+&lt;p&gt;#yum install libxml2-devel&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;如果提示：Try adding –with-zlib-dir=&lt;dir&gt;试着添加一下 zlib的路径，如下&lt;/dir&gt;&lt;/p&gt;
+&lt;p&gt;#./configure –prefix=/usr/local/php –with-apxs2=/usr/local/apache2/bin/apxs –with-mysql-dir=/usr/local/mysql –with-zlib-dir=/usr/local/zlib&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;完全成功才可以编译安装&lt;/p&gt;
+&lt;p&gt;#make&lt;/p&gt;
+&lt;p&gt;#make install&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;安装失败如果提示：Cannot load /usr/local/apache2/modules/libphp5.so into server:&lt;/p&gt;
+&lt;p&gt;原因：是Linux有一个SELinux保护模式引起的。&lt;/p&gt;
+&lt;p&gt; 解决办法：&lt;br&gt;1关闭SELINUX的方法:&lt;br&gt;vi /etc/selinux/config 将SELINUX=enforcing 改成SELINUX=disabled 需要重启&lt;br&gt;这个方法可能会对服务器带来风险。&lt;/p&gt;
+&lt;p&gt;2不关闭SELINUX的方法:&lt;/p&gt;
+&lt;h1 id=&quot;setenforce-0&quot;&gt;&lt;a href=&quot;#setenforce-0&quot; class=&quot;headerlink&quot; title=&quot;setenforce 0&quot;&gt;&lt;/a&gt;setenforce 0&lt;/h1&gt;&lt;h1 id=&quot;chcon-c-v-R-u-system-u-r-object-r-t-textrel-shlib-t-usr-local-apache-modules-libphp5-so&quot;&gt;&lt;a href=&quot;#chcon-c-v-R-u-system-u-r-object-r-t-textrel-shlib-t-usr-local-apache-modules-libphp5-so&quot; class=&quot;headerlink&quot; title=&quot;chcon -c -v -R -u system_u -r object_r -t textrel_shlib_t /usr/local/apache/modules/libphp5.so&quot;&gt;&lt;/a&gt;chcon -c -v -R -u system_u -r object_r -t textrel_shlib_t /usr/local/apache/modules/libphp5.so&lt;/h1&gt;&lt;h1 id=&quot;service-httpd-restart&quot;&gt;&lt;a href=&quot;#service-httpd-restart&quot; class=&quot;headerlink&quot; title=&quot;service httpd restart&quot;&gt;&lt;/a&gt;service httpd restart&lt;/h1&gt;&lt;h1 id=&quot;setenforce-1&quot;&gt;&lt;a href=&quot;#setenforce-1&quot; class=&quot;headerlink&quot; title=&quot;setenforce 1&quot;&gt;&lt;/a&gt;setenforce 1&lt;/h1&gt;&lt;hr&gt;
+&lt;p&gt;复制php.ini配置文件&lt;/p&gt;
+&lt;p&gt;参考此文&lt;a href=&quot;http://blog.csdn.net/21aspnet/article/details/7001344&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://blog.csdn.net/21aspnet/article/details/7001344&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;注意php新版本此文件名有变更&lt;/p&gt;
+&lt;p&gt;#cp php.ini-production /usr/local/php/lib/php.ini&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;修改apache的配置文件httpd.conf&lt;/p&gt;
+&lt;p&gt;增加&lt;/p&gt;
+&lt;p&gt;AddType application/x-httpd-php .php&lt;/p&gt;
+&lt;p&gt;修改www的默认文件地址DocumentRoot&lt;/p&gt;
+&lt;p&gt;注意还要修改Directoty的路径和上面的一样&lt;/p&gt;
+&lt;p&gt;重启httpd&lt;/p&gt;
+&lt;p&gt;测试php文件&lt;/p&gt;
+&lt;p&gt;phpinfo()&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt; 执行php文件&lt;/p&gt;
+&lt;p&gt;#/usr/local/php/bin/php    xx.php&lt;/p&gt;
+&lt;p&gt;加速器：&lt;/p&gt;
+&lt;p&gt;PHP安装eAccelerator&lt;/p&gt;
+&lt;p&gt;PHP安装扩展的两种类型：&lt;/p&gt;
+&lt;p&gt;1.PHP安装扩展mcrypt以及相关依赖项 【PHP安装PECL扩展的方法】&lt;br&gt;2.PHP安装与使用VLD查看opcode代码【PHP安装第三方扩展的方法】&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;第四步 Memcached安装&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;可以参考&lt;a href=&quot;http://timke.blog.163.com/blog/static/1015873062009111094715315/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://timke.blog.163.com/blog/static/1015873062009111094715315/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;说明必须先安装libevent&lt;/p&gt;
+&lt;p&gt;官网   &lt;a href=&quot;http://libevent.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://libevent.org/&lt;/a&gt;  找最新的版本&lt;/p&gt;
+&lt;p&gt;#wget &lt;a href=&quot;https://github.com/downloads/libevent/libevent/libevent-2.0.16-stable.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/downloads/libevent/libevent/libevent-2.0.16-stable.tar.gz&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;#tar xzvf libevent-2.0.16-stable.tar.gz&lt;/p&gt;
+&lt;p&gt;#cd libevent-2.0.16-stable&lt;/p&gt;
+&lt;p&gt;#./configure –prefix=/usr&lt;/p&gt;
+&lt;p&gt;#make&lt;/p&gt;
+&lt;p&gt;#make install&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;第二步 安装memcached&lt;/p&gt;
+&lt;h1 id=&quot;wget-http-memcached-googlecode-com-files-memcached-1-4-9-tar-gz&quot;&gt;&lt;a href=&quot;#wget-http-memcached-googlecode-com-files-memcached-1-4-9-tar-gz&quot; class=&quot;headerlink&quot; title=&quot;wget http://memcached.googlecode.com/files/memcached-1.4.9.tar.gz&quot;&gt;&lt;/a&gt;wget &lt;a href=&quot;http://memcached.googlecode.com/files/memcached-1.4.9.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://memcached.googlecode.com/files/memcached-1.4.9.tar.gz&lt;/a&gt;&lt;/h1&gt;&lt;p&gt;#tar xzvf memcached-1.4.9.tar.gz&lt;/p&gt;
+&lt;p&gt;#cd memcached-1.4.9&lt;/p&gt;
+&lt;p&gt;#./configure –prefix=/usr/local/memcached –with-libevent=/usr&lt;/p&gt;
+&lt;p&gt;注意这里选择libevent的位置即可  例如你的是在–with-libevent=/usr/local/libevent/&lt;/p&gt;
+&lt;p&gt;#make&lt;/p&gt;
+&lt;p&gt;#make install&lt;/p&gt;
+&lt;p&gt;启动&lt;/p&gt;
+&lt;p&gt;#/usr/local/memcached/bin/memcached -d -m 100 -uroot -l 0.0.0.0 -p 11211 -c 512 -P /usr/local/memcached/memcached.pid&lt;/p&gt;
+&lt;p&gt;查看详情&lt;/p&gt;
+&lt;p&gt;#ps aux|grep mem   &lt;/p&gt;
+&lt;p&gt;输出pid&lt;/p&gt;
+&lt;p&gt;#cat /usr/local/memcached/memcached.pid&lt;/p&gt;
+&lt;p&gt;查看内存使用&lt;/p&gt;
+&lt;p&gt;#top -n 1 |grep Mem&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;第三步  安装memcached的php扩展memcache&lt;/p&gt;
+&lt;p&gt;#wget &lt;a href=&quot;http://pecl.php.net/get/memcache-2.2.6.tgz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://pecl.php.net/get/memcache-2.2.6.tgz&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;#tar vxzf memcache-2.2.6.tgz&lt;/p&gt;
+&lt;p&gt;#cd memcache-2.2.6&lt;/p&gt;
+&lt;p&gt;#/usr/local/php/bin/phpize&lt;/p&gt;
+&lt;p&gt;此处出错可以参考 &lt;a href=&quot;http://blog.csdn.net/21aspnet/article/details/7001182&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://blog.csdn.net/21aspnet/article/details/7001182&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;#./configure –enable-memcache –with-php-config=/usr/local/php/bin/php-config –with-zlib-dir&lt;/p&gt;
+&lt;p&gt;或者&lt;/p&gt;
+&lt;p&gt;#./configure –enable-memcache –with-php-config=/usr/local/php/bin/php-config –with-zlib-dir=/usr&lt;/p&gt;
+&lt;p&gt;#make&lt;/p&gt;
+&lt;p&gt;#make install &lt;/p&gt;
+&lt;p&gt;#vi /usr/local/php/lib/php.ini&lt;/p&gt;
+&lt;p&gt;php.ini添加&lt;/p&gt;
+&lt;p&gt;extension=memcache.so&lt;/p&gt;
+&lt;p&gt;&amp;lt;完&amp;gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;重启&lt;/p&gt;
+&lt;h1 id=&quot;usr-local-apache2-bin-apachectl-restart-1&quot;&gt;&lt;a href=&quot;#usr-local-apache2-bin-apachectl-restart-1&quot; class=&quot;headerlink&quot; title=&quot;/usr/local/apache2/bin/apachectl restart&quot;&gt;&lt;/a&gt;/usr/local/apache2/bin/apachectl restart&lt;/h1&gt;&lt;hr&gt;
+&lt;p&gt;测试&lt;br&gt;[php] view plain copy&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$memcache = new Memcache; //创建一个memcache对象     
+$memcache-&amp;gt;connect(&amp;apos;localhost&amp;apos;, 11211) or die (&amp;quot;Could not connect&amp;quot;); //连接Memcached服务器     
+$memcache-&amp;gt;set(&amp;apos;key&amp;apos;, &amp;apos;test&amp;apos;); //设置一个变量到内存中，名称是key 值是test     
+$get_value = $memcache-&amp;gt;get(&amp;apos;key&amp;apos;); //从内存中取出key的值     
+echo $get_value;    
+&lt;/code&gt;&lt;/pre&gt;&lt;hr&gt;
+&lt;p&gt;或者手动指定&lt;/p&gt;
+&lt;p&gt;extension_dir = “/usr/local/php/lib/php/extensions/no-debug-non-zts-20060613/“&lt;br&gt;[php] view plain copy&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;class MemCache {  
+    var $mem = null;  
+
+    private static $isLibLoad = false;  
+    //put your code here  
+    public function Com_MemCache(){  
+        if(!self::$isLibLoad){  
+            dl(&amp;quot;memcache.so&amp;quot;);  
+            self::$isLibLoad = true;  
+        }  
+
+        $this-&amp;gt;mem = new Memcache();  
+        $this-&amp;gt;mem-&amp;gt;connect(&amp;quot;127.0.0.1&amp;quot;, 11211);  
+    }  
+
+    public function set($key,$value,$flag = null,$expire = 5000){  
+        $this-&amp;gt;mem-&amp;gt;set($key, $value, $flag, $expire);  
+    }  
+
+    public function get($key){  
+        return $this-&amp;gt;mem-&amp;gt;get($key);  
+    }  
+
+    function __destruct(){  
+        $this-&amp;gt;mem-&amp;gt;close();  
+    }  
+}  
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;调用&lt;br&gt;[php] view plain copy&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$cache = new MemCache();  
+           $mm = $cache -&amp;gt;get(&amp;quot;A&amp;quot;);  
+           if($mm==null){  
+             $cache-&amp;gt;set(&amp;apos;A&amp;apos;, date(&amp;apos;Y-m-j&amp;apos;).&amp;apos; &amp;apos;.date(&amp;apos;G:i:s&amp;apos;),null,15);  
+           }  
+echo $mm;  
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;因为MemCache.php有 dl(“memcache.so”);所以在php.ini中不需要extension=memcache.so了，但是前一句extension_dir是要的。&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Nginx安装
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;官网：&lt;a href=&quot;http://wiki.nginx.org/Install&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://wiki.nginx.org/Install&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;下载&lt;/p&gt;
+&lt;p&gt;#wget &lt;a href=&quot;http://nginx.org/download/nginx-1.2.6.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://nginx.org/download/nginx-1.2.6.tar.gz&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;#./configure –prefix=/usr/local/nginx&lt;/p&gt;
+&lt;p&gt;#make&lt;/p&gt;
+&lt;p&gt;#make install&lt;/p&gt;
+&lt;p&gt;安装Nginx时报错&lt;/p&gt;
+&lt;p&gt;./configure: error: the HTTP rewrite module requires the PCRE library.&lt;/p&gt;
+&lt;p&gt;安装pcre-devel解决问题&lt;br&gt;yum -y install pcre-devel&lt;/p&gt;
+&lt;p&gt;错误提示：./configure: error: the HTTP cache module requires md5 functions&lt;br&gt;from OpenSSL library. You can either disable the module by using&lt;br&gt;–without-http-cache option, or install the OpenSSL library into the system,&lt;br&gt;or build the OpenSSL library statically from the source with nginx by using&lt;br&gt;–with-http_ssl_module –with-openssl=&lt;path&gt;&lt;/path&gt; options.&lt;/p&gt;
+&lt;p&gt;解决办法：&lt;/p&gt;
+&lt;p&gt;yum -y install openssl openssl-devel&lt;/p&gt;
+&lt;p&gt;总结：&lt;/p&gt;
+&lt;p&gt;yum -y install pcre-devel openssl openssl-devel&lt;/p&gt;
+&lt;p&gt;./configure –prefix=/usr/local/nginx&lt;/p&gt;
+&lt;p&gt;make&lt;/p&gt;
+&lt;p&gt;make install&lt;/p&gt;
+&lt;p&gt;启动nginx&lt;/p&gt;
+&lt;p&gt;#/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf&lt;/p&gt;
+&lt;p&gt;安装成功的页面&lt;/p&gt;
+&lt;p&gt;停止操作&lt;br&gt;停止操作是通过向nginx进程发送信号（什么是信号请参阅linux文 章）来进行的&lt;br&gt;步骤1：查询nginx主进程号&lt;br&gt;ps -ef | grep nginx&lt;br&gt;在进程列表里 面找master进程，它的编号就是主进程号了。&lt;br&gt;步骤2：发送信号&lt;br&gt;从容停止Nginx：&lt;br&gt;kill -QUIT 主进程号&lt;br&gt;快速停止Nginx：&lt;br&gt;kill -TERM 主进程号&lt;br&gt;强制停止Nginx：&lt;br&gt;pkill -9 nginx&lt;/p&gt;
+&lt;p&gt;另外， 若在nginx.conf配置了pid文件存放路径则该文件存放的就是Nginx主进程号，如果没指定则放在nginx的logs目录下。有了pid文 件，我们就不用先查询Nginx的主进程号，而直接向Nginx发送信号了，命令如下：&lt;br&gt;kill -信号类型 ‘/usr/nginx/logs/nginx.pid’&lt;/p&gt;
+&lt;p&gt;平滑重启&lt;br&gt;如果更改了配置就要重启Nginx，要先关闭Nginx再打开？不是的，可以向Nginx 发送信号，平滑重启。&lt;br&gt;平滑重启命令：&lt;br&gt;kill -HUP 住进称号或进程号文件路径&lt;/p&gt;
+&lt;p&gt;或者使用&lt;/p&gt;
+&lt;p&gt;/usr/nginx/sbin/nginx -s reload&lt;/p&gt;
+&lt;p&gt;注意，修改了配置文件后最好先检查一下修改过的配置文件是否正 确，以免重启后Nginx出现错误影响服务器稳定运行。判断Nginx配置是否正确命令如下：&lt;br&gt;nginx -t -c /usr/nginx/conf/nginx.conf&lt;/p&gt;
+&lt;p&gt;或者&lt;/p&gt;
+&lt;p&gt;/usr/nginx/sbin/nginx -t&lt;/p&gt;
+&lt;p&gt;平滑升级&lt;br&gt;如果服务器正在运行的Nginx要进行升级、添加或删除模块时，我们需 要停掉服务器并做相应修改，这样服务器就要在一段时间内停止服务，Nginx可以在不停机的情况下进行各种升级动作而不影响服务器运行。&lt;br&gt;步骤1：&lt;br&gt;如 果升级Nginx程序，先用新程序替换旧程序文件，编译安装的话新程序直接编译到Nginx安装目录中。&lt;br&gt;步 骤2：执行命令&lt;br&gt;kill -USR2 旧版程序的主进程号或进程文件名&lt;br&gt;此时旧的Nginx主进程将会把自己的进程文件改名为.oldbin，然后执行新版 Nginx。新旧Nginx会同市运行，共同处理请求。&lt;br&gt;这时要逐步停止旧版 Nginx，输入命令：&lt;br&gt;kill -WINCH 旧版主进程号&lt;br&gt;慢慢旧的工作进程就都会随着任务执行完毕而退出，新版的Nginx的工作进程会逐渐取代旧版 工作进程。&lt;/p&gt;
+&lt;p&gt;此 时，我们可以决定使用新版还是恢复到旧版。&lt;br&gt;不重载配置启动新/旧工作进程&lt;br&gt;kill -HUP 旧/新版主进程号&lt;br&gt;从容关闭旧/新进程&lt;br&gt;kill -QUIT 旧/新主进程号&lt;br&gt;如果此时报错，提示还有进程没有结束就用下面命令先关闭旧/新工作进程，再关闭主进程号：&lt;br&gt;kill -TERM 旧/新工作进程号&lt;/p&gt;
+&lt;p&gt;这样下来，如果要恢复到旧版本，只需要上面的几个步 骤都是操作新版主进程号，如果要用新版本就上面的几个步骤都操作旧版主进程号就行了。&lt;/p&gt;
+&lt;p&gt;上面就是Nginx的一些基本的操作，希望以后Nginx能有更好的方法来处理这些操作， 最好是Nginx的命令而不是向Nginx进程发送系统信号。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;第一步：Apache安装(已更新到2.2.22)&lt;/p&gt;
+&lt;p&gt;===================&lt;/p&gt;
+&lt;p&gt;下载 去 &lt;a href=&quot;http://www.apache.org&quot; target=&quot;_blank
+    
+    </summary>
+    
+    
+      <category term="lnmp" scheme="http://xwzmsdqbjzyyg.github.io/tags/lnmp/"/>
+    
+  </entry>
   
   <entry>
     <title>thinkphp 单字母函数</title>
