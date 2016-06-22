@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xwzmsdqbjzyyg.github.io/"/>
-  <updated>2016-06-22T03:16:24.649Z</updated>
+  <updated>2016-06-22T07:19:53.029Z</updated>
   <id>http://xwzmsdqbjzyyg.github.io/</id>
   
   <author>
@@ -14,6 +14,134 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>memcache使用方法测试</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/06/22/memcache-01/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/06/22/memcache-01/</id>
+    <published>2016-06-22T07:17:19.000Z</published>
+    <updated>2016-06-22T07:19:53.029Z</updated>
+    
+    <content type="html">&lt;p&gt;//php操作memcache的使用测试总结–学习&lt;/p&gt;
+&lt;p&gt;//1 Memcache::connect;&lt;/p&gt;
+&lt;p&gt;   //$memcache = new Memcache;&lt;br&gt;   //$memcache-&amp;gt;connect(‘127.0.0.1’,11211) or die(“链接失败!”);&lt;/p&gt;
+&lt;p&gt;//2 Memcache::pconnect; 长链接&lt;/p&gt;
+&lt;p&gt;   //$memcache = new Memcache;&lt;br&gt;   //$ret = $memcache-&amp;gt;pconnect(‘127.0.0.1’,11211) or die(“链接失败”);&lt;br&gt;   //var_dump($ret);&lt;/p&gt;
+&lt;p&gt;//3 Memcache::close; 关闭对象（对常链接不起作用）&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*$memcache = new Memcache;
+$memcache-&amp;gt;connect(&amp;apos;127.0.0.1&amp;apos;,11211) or die(&amp;quot;链接失败!&amp;quot;);
+$result = $memcache-&amp;gt;close();
+var_dump($result);*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//4 Memcache::addServer; 向对象添加一个服务器&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211,true, 1, 1, 15, true);
+$is_set = $mem-&amp;gt;set(&amp;apos;key1&amp;apos;,&amp;apos;中华人民共和国&amp;apos;);
+var_dump($is_set);*/
+
+/*$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211,true, 1, 1, -1, false);
+$is_set = $mem-&amp;gt;set(&amp;apos;key1&amp;apos;,&amp;apos;中华人民共和国&amp;apos;);
+var_dump($is_set);*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//5 Memcache::add 添加一个要缓存的数据如果作为这个缓存的数据在键在服务器上还不存在的情况下&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$is_set = $mem-&amp;gt;add(&amp;apos;key2&amp;apos;,&amp;apos;中华人民共和国&amp;apos;, false, 60);
+var_dump($is_set);*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//6 Memcache::replace() 替换一个指定已存在key的缓存变量内容&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$mem-&amp;gt;add(&amp;apos;key2&amp;apos;,&amp;apos;中华人民共和国&amp;apos;, false, 60);
+$is_set = $mem-&amp;gt;replace(&amp;apos;key2&amp;apos;,&amp;apos;台湾人民共和国&amp;apos;,false,60);
+var_dump($is_set);*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//7 Memcace::set 设置一个指定key的缓存变量内容&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*
+$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$mem-&amp;gt;set(&amp;apos;key2&amp;apos;,&amp;apos;中华人民共和国&amp;apos;, false, 60);
+$key2 = $mem-&amp;gt;get(&amp;apos;key2&amp;apos;);
+echo $key2.&amp;quot;&amp;lt;BR&amp;gt;&amp;quot;;
+$mem-&amp;gt;replace(&amp;apos;key2&amp;apos;,&amp;apos;台湾人民&amp;apos;,false,60);
+$key2 = $mem-&amp;gt;get(&amp;apos;key2&amp;apos;);
+echo $key2;*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//8 Memcache::get() 获取某个key的变量缓存值&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*
+$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$mem-&amp;gt;set(&amp;apos;key2&amp;apos;,&amp;apos;中华人民共和国&amp;apos;, false, 60);
+$mem-&amp;gt;set(&amp;apos;key1&amp;apos;,&amp;apos;台湾人民&amp;apos;,false,60);
+$arr = $mem-&amp;gt;get(array(&amp;apos;key1&amp;apos;,&amp;apos;key2&amp;apos;));
+var_dump($arr);
+*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//9 Memcache::delete 删除某个变量的缓存&lt;br&gt;    /*&lt;br&gt;    $mem = new Memcache;&lt;br&gt;    $is_add = $mem-&amp;gt;addServer(‘localhost’,11211);&lt;br&gt;    $mem-&amp;gt;set(‘key2’,’中华人民共和国’, false, 60);&lt;br&gt;    $mem-&amp;gt;set(‘key1’,’台湾人民’,false,60);&lt;br&gt;    $mem-&amp;gt;delete(‘key2’);&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$arr = $mem-&amp;gt;get(array(&amp;apos;key1&amp;apos;,&amp;apos;key2&amp;apos;));
+var_dump($arr);
+*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//10 Memcach::flush 清空所缓存内容，不是真的删除缓存的内容，只是使所有变量的缓存过期，使内存中的内容被重写&lt;br&gt;    /*&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$mem-&amp;gt;flush();
+*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//11 Memcach::getExtendedStats 获取所有服务器扩展静态信息&lt;br&gt;    /*&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$stats = $mem-&amp;gt;getExtendedStats();
+var_dump($stats);
+*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//12 Memcache:getStats; 获取最后添加服务器静态信息&lt;/p&gt;
+&lt;p&gt;//13 Memcache::getServerStatus 通过输入的host及port来获取相应的服务器信息&lt;br&gt;    /*&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$info = $mem-&amp;gt;getServerStatus(&amp;apos;localhost&amp;apos;);
+var_dump($info);
+*/
+//返回值
+//返回服务器状态，0为失败，其他情况返回非0数字
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt; //14 Memcache::getVersion() 获取服务器的版本号信息&lt;br&gt;    /*&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$version = $mem-&amp;gt;getVersion();
+echo $version;
+*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt; //15 Memcache::setCompressThreshold 设置压缩级根&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;//bool Memcache::setCompressThreshold ( int $threshold [, float $min_savings ] )
+//threshold 设置控制自动压缩的变量长度的最小值
+//min_saving 指定的最低压缩比率，值必须介于 0 - 1 之间，默认为 0.2 代表 20% 的压缩比率
+//$mem-&amp;gt;setCompressThreshold(20000,0.2);
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;//16  Memcache::setServerParams   Memcache version 2.1.0后增加的函数，运行时设置服务器参数&lt;/p&gt;
+&lt;p&gt;//17 Memcache::increment  给指定kye的缓存变量一个增值，如查该变量不是数字时不会被转化为数字&lt;br&gt;    //这个增值将会加到该变量原有的数字之上，变量不存在不会新增变量&lt;br&gt;    //对于压缩存储的变量不要使用本函数因为相应的取值方法会失败&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*
+$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$mem-&amp;gt;set(&amp;apos;key2&amp;apos;,11, false, 60);
+$key  = $mem-&amp;gt;get(&amp;apos;key2&amp;apos;);
+echo $key.&amp;quot;&amp;lt;BR&amp;gt;&amp;lt;BR&amp;gt;&amp;quot;;
+
+$mem-&amp;gt;increment(&amp;apos;key2&amp;apos;,3);
+$key = $mem-&amp;gt;get(&amp;apos;key2&amp;apos;);
+echo $key;
+*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt; //18 Memcache::decrement&lt;br&gt;    //给指定key的缓存变量一个递减值，与increment操作类拟，将在原有变量基础上减去这个值，该项的值将会在转化为数字后减去，新项的值不会小于0，对于压缩的变量不要使用本函数因为相应的取值方法会失败&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/*$mem = new Memcache;
+$is_add = $mem-&amp;gt;addServer(&amp;apos;localhost&amp;apos;,11211);
+$mem-&amp;gt;set(&amp;apos;key2&amp;apos;,11, false, 60);
+$key  = $mem-&amp;gt;get(&amp;apos;key2&amp;apos;);
+echo $key.&amp;quot;&amp;lt;BR&amp;gt;&amp;lt;BR&amp;gt;&amp;quot;;
+$mem-&amp;gt;decrement(&amp;apos;key2&amp;apos;,3);
+$key = $mem-&amp;gt;get(&amp;apos;key2&amp;apos;);
+echo $key;*/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt; //19 Memcache_debug&lt;br&gt;      //设置memecache的调用器是否开启，值为true或者false，受影响于php这安装时是否使用了 –enable-debug选项，如果使用了该函数才会返回true,其他情况将始终返回false&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;//php操作memcache的使用测试总结–学习&lt;/p&gt;
+&lt;p&gt;//1 Memcache::connect;&lt;/p&gt;
+&lt;p&gt;   //$memcache = new Memcache;&lt;br&gt;   //$memcache-&amp;gt;connect(‘127.0.0.1’,1
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>转 使用HAProxy,PHPRedis,和MySQL支撑10亿请求每周架构细节</title>

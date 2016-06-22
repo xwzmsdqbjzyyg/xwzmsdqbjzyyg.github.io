@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> memcache使用方法测试 · 一天进步一点</title><meta name="description" content="memcache使用方法测试 - 陈长生"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/u/1977719157" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/xwzmsdqbjzyyg/xwzmsdqbjzyyg.github.io" target="_blank" class="nav-list-link">GITHUB</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">memcache使用方法测试</h1><div class="post-info">2016年6月22日</div><div class="post-content"><p>//php操作memcache的使用测试总结–学习</p>
+<p>//1 Memcache::connect;</p>
+<p>   //$memcache = new Memcache;<br>   //$memcache-&gt;connect(‘127.0.0.1’,11211) or die(“链接失败!”);</p>
+<p>//2 Memcache::pconnect; 长链接</p>
+<p>   //$memcache = new Memcache;<br>   //$ret = $memcache-&gt;pconnect(‘127.0.0.1’,11211) or die(“链接失败”);<br>   //var_dump($ret);</p>
+<p>//3 Memcache::close; 关闭对象（对常链接不起作用）</p>
+<pre><code>/*$memcache = new Memcache;
+$memcache-&gt;connect(&apos;127.0.0.1&apos;,11211) or die(&quot;链接失败!&quot;);
+$result = $memcache-&gt;close();
+var_dump($result);*/
+</code></pre><p>//4 Memcache::addServer; 向对象添加一个服务器</p>
+<pre><code>/*$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211,true, 1, 1, 15, true);
+$is_set = $mem-&gt;set(&apos;key1&apos;,&apos;中华人民共和国&apos;);
+var_dump($is_set);*/
+
+/*$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211,true, 1, 1, -1, false);
+$is_set = $mem-&gt;set(&apos;key1&apos;,&apos;中华人民共和国&apos;);
+var_dump($is_set);*/
+</code></pre><p>//5 Memcache::add 添加一个要缓存的数据如果作为这个缓存的数据在键在服务器上还不存在的情况下</p>
+<pre><code>/*$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$is_set = $mem-&gt;add(&apos;key2&apos;,&apos;中华人民共和国&apos;, false, 60);
+var_dump($is_set);*/
+</code></pre><p>//6 Memcache::replace() 替换一个指定已存在key的缓存变量内容</p>
+<pre><code>/*$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$mem-&gt;add(&apos;key2&apos;,&apos;中华人民共和国&apos;, false, 60);
+$is_set = $mem-&gt;replace(&apos;key2&apos;,&apos;台湾人民共和国&apos;,false,60);
+var_dump($is_set);*/
+</code></pre><p>//7 Memcace::set 设置一个指定key的缓存变量内容</p>
+<pre><code>/*
+$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$mem-&gt;set(&apos;key2&apos;,&apos;中华人民共和国&apos;, false, 60);
+$key2 = $mem-&gt;get(&apos;key2&apos;);
+echo $key2.&quot;&lt;BR&gt;&quot;;
+$mem-&gt;replace(&apos;key2&apos;,&apos;台湾人民&apos;,false,60);
+$key2 = $mem-&gt;get(&apos;key2&apos;);
+echo $key2;*/
+</code></pre><p>//8 Memcache::get() 获取某个key的变量缓存值</p>
+<pre><code>/*
+$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$mem-&gt;set(&apos;key2&apos;,&apos;中华人民共和国&apos;, false, 60);
+$mem-&gt;set(&apos;key1&apos;,&apos;台湾人民&apos;,false,60);
+$arr = $mem-&gt;get(array(&apos;key1&apos;,&apos;key2&apos;));
+var_dump($arr);
+*/
+</code></pre><p>//9 Memcache::delete 删除某个变量的缓存<br>    /*<br>    $mem = new Memcache;<br>    $is_add = $mem-&gt;addServer(‘localhost’,11211);<br>    $mem-&gt;set(‘key2’,’中华人民共和国’, false, 60);<br>    $mem-&gt;set(‘key1’,’台湾人民’,false,60);<br>    $mem-&gt;delete(‘key2’);</p>
+<pre><code>$arr = $mem-&gt;get(array(&apos;key1&apos;,&apos;key2&apos;));
+var_dump($arr);
+*/
+</code></pre><p>//10 Memcach::flush 清空所缓存内容，不是真的删除缓存的内容，只是使所有变量的缓存过期，使内存中的内容被重写<br>    /*</p>
+<pre><code>$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$mem-&gt;flush();
+*/
+</code></pre><p>//11 Memcach::getExtendedStats 获取所有服务器扩展静态信息<br>    /*</p>
+<pre><code>$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$stats = $mem-&gt;getExtendedStats();
+var_dump($stats);
+*/
+</code></pre><p>//12 Memcache:getStats; 获取最后添加服务器静态信息</p>
+<p>//13 Memcache::getServerStatus 通过输入的host及port来获取相应的服务器信息<br>    /*</p>
+<pre><code>$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$info = $mem-&gt;getServerStatus(&apos;localhost&apos;);
+var_dump($info);
+*/
+//返回值
+//返回服务器状态，0为失败，其他情况返回非0数字
+</code></pre><p> //14 Memcache::getVersion() 获取服务器的版本号信息<br>    /*</p>
+<pre><code>$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$version = $mem-&gt;getVersion();
+echo $version;
+*/
+</code></pre><p> //15 Memcache::setCompressThreshold 设置压缩级根</p>
+<pre><code>//bool Memcache::setCompressThreshold ( int $threshold [, float $min_savings ] )
+//threshold 设置控制自动压缩的变量长度的最小值
+//min_saving 指定的最低压缩比率，值必须介于 0 - 1 之间，默认为 0.2 代表 20% 的压缩比率
+//$mem-&gt;setCompressThreshold(20000,0.2);
+</code></pre><p>//16  Memcache::setServerParams   Memcache version 2.1.0后增加的函数，运行时设置服务器参数</p>
+<p>//17 Memcache::increment  给指定kye的缓存变量一个增值，如查该变量不是数字时不会被转化为数字<br>    //这个增值将会加到该变量原有的数字之上，变量不存在不会新增变量<br>    //对于压缩存储的变量不要使用本函数因为相应的取值方法会失败</p>
+<pre><code>/*
+$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$mem-&gt;set(&apos;key2&apos;,11, false, 60);
+$key  = $mem-&gt;get(&apos;key2&apos;);
+echo $key.&quot;&lt;BR&gt;&lt;BR&gt;&quot;;
+
+$mem-&gt;increment(&apos;key2&apos;,3);
+$key = $mem-&gt;get(&apos;key2&apos;);
+echo $key;
+*/
+</code></pre><p> //18 Memcache::decrement<br>    //给指定key的缓存变量一个递减值，与increment操作类拟，将在原有变量基础上减去这个值，该项的值将会在转化为数字后减去，新项的值不会小于0，对于压缩的变量不要使用本函数因为相应的取值方法会失败</p>
+<pre><code>/*$mem = new Memcache;
+$is_add = $mem-&gt;addServer(&apos;localhost&apos;,11211);
+$mem-&gt;set(&apos;key2&apos;,11, false, 60);
+$key  = $mem-&gt;get(&apos;key2&apos;);
+echo $key.&quot;&lt;BR&gt;&lt;BR&gt;&quot;;
+$mem-&gt;decrement(&apos;key2&apos;,3);
+$key = $mem-&gt;get(&apos;key2&apos;);
+echo $key;*/
+</code></pre><p> //19 Memcache_debug<br>      //设置memecache的调用器是否开启，值为true或者false，受影响于php这安装时是否使用了 –enable-debug选项，如果使用了该函数才会返回true,其他情况将始终返回false</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/06/22/hprm-01/" class="next">NEXT</a></div><div class="copyright"><p>© 2016 <a href="http://xwzmsdqbjzyyg.github.io">陈长生</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
