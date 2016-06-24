@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> PHP写入，读取与替换文件内容 · 一天进步一点</title><meta name="description" content="PHP写入，读取与替换文件内容 - 陈长生"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/u/1977719157" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/xwzmsdqbjzyyg/xwzmsdqbjzyyg.github.io" target="_blank" class="nav-list-link">GITHUB</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">PHP写入，读取与替换文件内容</h1><div class="post-info">2016年6月24日</div><div class="post-content"><p>完美实现PHP写入，读取，替换文件内容。先解释一下，主要用到：</p>
+<pre><code>fopen(&quot;文件名.扩展名&quot;,&quot;操作方式&quot;)
+fwrite(读取的文件,&quot;写入的文件&quot;);
+fclose(打开的对象变量);
+</code></pre><p>01     //写入文件<br>02     $str=”This is a test from www.nowamagic.netn”;<br>03     // w表示以写入的方式打开文件，如果文件不存在，系统会自动建立<br>04     $file_pointer = fopen(“aa.txt”,”a+”);<br>05     fwrite($file_pointer,$str);<br>06     fclose($file_pointer);<br>07     //读取文件<br>08      $file_name=”aa.txt”;<br>09      $fp=fopen($file_name,’r’);<br>10      while(!feof($fp))<br>11      {<br>12       $buffer=fgets($fp,4096);<br>13       //替换文件<br>14       $buffer = str_replace(“nowamagic”,”现代魔法”,$buffer);<br>15       $buffer = str_replace(“This is a test”,”这是一个实例”,$buffer);<br>16       echo $buffer.”<br>“;<br>17      }<br>18      fclose($fp);<br>fopen()</p>
+<p>fopen() 函数用于在 PHP 中打开文件，此函数的第一个参数含有要打开的文件的名称，第二个参数规定了使用哪种模式来打开文件。</p>
+<p>模式 描述</p>
+<pre><code>r 只读。在文件的开头开始。
+r+ 读/写。在文件的开头开始。
+w 只写。打开并清空文件的内容；如果文件不存在，则创建新文件。
+w+ 读/写。打开并清空文件的内容；如果文件不存在，则创建新文件。
+a 追加。打开并向文件文件的末端进行写操作，如果文件不存在，则创建新文件。
+a+ 读/追加。通过向文件末端写内容，来保持文件内容。
+x 只写。创建新文件。如果文件以存在，则返回 FALSE。
+x+ 读/写。创建新文件。如果文件已存在，则返回 FALSE 和一个错误。
+</code></pre><p>注释：如果 fopen() 无法打开指定文件，则返回 0 (false)。<br>feof()</p>
+<p>检测 End-of-file</p>
+<p>feof() 函数检测是否已达到文件的末端 (EOF)，在循环遍历未知长度的数据时，feof() 函数很有用。注释：在 w 、a 以及 x 模式，您无法读取打开的文件！<br>1     if (feof($file))<br>2         echo “End of file”;<br>fgets()</p>
+<p>fgets() 函数用于从文件中逐行读取文件。在调用该函数之后，文件指针会移动到下一行。</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/06/24/server-01/" class="next">NEXT</a></div><div class="copyright"><p>© 2016 <a href="http://xwzmsdqbjzyyg.github.io">陈长生</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>

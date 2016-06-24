@@ -13,11 +13,11 @@
 <p>#wget <a href="http://labs.renren.com/apache-mirror/httpd/httpd-2.2.22.tar.gz" target="_blank" rel="external">http://labs.renren.com/apache-mirror/httpd/httpd-2.2.22.tar.gz</a></p>
 <p>#tar zxvf httpd-2.2.22.tar.gz</p>
 <p>#cd ./httpd-2.2.22</p>
-<p>#./configure –prefix=/usr/local/apache2/ –enable-proxy –enable-ssl –enable-cgi –enable-rewrite –enable-so –enable-module=so</p>
-<p>#make</p>
+<pre><code>#./configure --prefix=/usr/local/apache2/ --enable-proxy --enable-ssl --enable-cgi --enable-rewrite --enable-so --enable-module=so
+</code></pre><p>#make</p>
 <p>#make install</p>
-<p>说明：如果make不成功，那么是configure不成，例如你缺少ssl组件，可以去掉</p>
-<h2 id="–enable-ssl"><a href="#–enable-ssl" class="headerlink" title="–enable-ssl"></a>–enable-ssl</h2><p>如果出现“No recognized SSL/TLS toolkit detected”错误</p>
+<p>说明：如果make不成功，那么是configure不成，缺少apr</p>
+<h2 id="http-blog-csdn-net-yiluoak-47-article-details-22067185"><a href="#http-blog-csdn-net-yiluoak-47-article-details-22067185" class="headerlink" title="http://blog.csdn.net/yiluoak_47/article/details/22067185"></a><a href="http://blog.csdn.net/yiluoak_47/article/details/22067185" target="_blank" rel="external">http://blog.csdn.net/yiluoak_47/article/details/22067185</a></h2><p>如果出现“No recognized SSL/TLS toolkit detected”错误</p>
 <p>#yum -y install openssl openssl-devel</p>
 <hr>
 <p>如果Make: command not found</p>
