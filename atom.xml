@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xwzmsdqbjzyyg.github.io/"/>
-  <updated>2016-06-24T05:55:02.867Z</updated>
+  <updated>2016-08-04T08:03:32.993Z</updated>
   <id>http://xwzmsdqbjzyyg.github.io/</id>
   
   <author>
@@ -14,6 +14,56 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>支付宝接口开发（即时到账）</title>
+    <link href="http://xwzmsdqbjzyyg.github.io/2016/08/04/alipay/"/>
+    <id>http://xwzmsdqbjzyyg.github.io/2016/08/04/alipay/</id>
+    <published>2016-08-04T07:57:21.000Z</published>
+    <updated>2016-08-04T08:03:32.993Z</updated>
+    
+    <content type="html">&lt;p&gt;准备企业PID，Key，企业支付宝账号   （注意，PID只要登录就能获取，但是Key需要支付宝的【支付密码】验证后才能获取。） demo下载：&lt;a href=&quot;https://b.alipay.com/order/techService.htm。&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://b.alipay.com/order/techService.htm。&lt;/a&gt;&lt;br&gt;代码文件结构 ，使用注意部分  参阅 readme.txt&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;create_direct_pay_by_user-php-UTF-8
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;  │&lt;br&gt;  ├lib┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈类文件夹&lt;br&gt;  │  │&lt;br&gt;  │  ├alipay_core.function.php ┈┈┈┈┈┈支付宝接口公用函数文件&lt;br&gt;  │  │&lt;br&gt;  │  ├alipay_notify.class.php┈┈┈┈┈┈┈支付宝通知处理类文件&lt;br&gt;  │  │&lt;br&gt;  │  ├alipay_submit.class.php┈┈┈┈┈┈┈支付宝各接口请求提交类文件&lt;br&gt;  │  │&lt;br&gt;  │  └alipay_md5.function.php┈┈┈┈┈┈┈支付宝接口MD5函数文件&lt;br&gt;  │&lt;br&gt;  ├log.txt┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈日志文件&lt;br&gt;  │&lt;br&gt;  ├alipay.config.php┈┈┈┈┈┈┈┈┈┈┈┈基础配置类文件&lt;br&gt;  │&lt;br&gt;  ├alipayapi.php┈┈┈┈┈┈┈┈┈┈┈┈┈┈支付宝接口入口文件&lt;br&gt;  │&lt;br&gt;  ├notify_url.php ┈┈┈┈┈┈┈┈┈┈┈┈┈服务器异步通知页面文件&lt;br&gt;  │&lt;br&gt;  ├return_url.php ┈┈┈┈┈┈┈┈┈┈┈┈┈页面跳转同步通知文件&lt;br&gt;  │&lt;br&gt;  ├cacert.pem ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈用于CURL中校验SSL的CA证书文件&lt;br&gt;  │&lt;br&gt;  └readme.txt ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈使用说明文本&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;结构分为两部分：接入部分与通知 返回 部分。接入部分即为传递参数等信息组合成超级链接，并用该链接来进行跳转。通知返回部分则是支付宝服务器对该笔订单处理完毕后，通知与返回该笔订单的详细信息到商户服务器，商&lt;br&gt;户服务器接收到后，并对其进行数据处理。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;接入部分：&lt;/p&gt;
+&lt;p&gt; 选定参数信息&lt;br&gt; 排序&lt;br&gt; 加密&lt;br&gt; 拼接字符串成URL链接&lt;br&gt; 自动跳转&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在 alipay.config.php中对需要配置的参数信息已经有详细说明， 具体在项目中一般会在config.php中配置好，将lib下的类文件（可以重命名）以及cacert.pem 放置在项目的合适位置，确保能够正确引入。&lt;/p&gt;
+&lt;p&gt;   构造 alipayapi.php中$parameter需要的参数 &lt;/p&gt;
+&lt;p&gt;   /&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;**&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;请求参数&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;**&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;/&lt;br&gt;        //商户订单号，商户网站订单系统中唯一订单号，必填&lt;br&gt;        $out_trade_no = $_POST[‘WIDout_trade_no’];&lt;br&gt;        //订单名称，必填&lt;br&gt;        $subject = $_POST[‘WIDsubject’];&lt;br&gt;        //付款金额，必填&lt;br&gt;        $total_fee = $_POST[‘WIDtotal_fee’];&lt;br&gt;        //商品描述，可空&lt;br&gt;        $body = $_POST[‘WIDbody’];&lt;br&gt;/&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;strong&gt;&lt;em&gt;**&lt;/em&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;&lt;/strong&gt;/&lt;br&gt;//构造要请求的参数数组，无需改动&lt;br&gt;$parameter = array(&lt;br&gt;        “service”       =&amp;gt; $alipay_config[‘service’],&lt;br&gt;        “partner”       =&amp;gt; $alipay_config[‘partner’],&lt;br&gt;        “seller_id”  =&amp;gt; $alipay_config[‘seller_id’],&lt;br&gt;        “payment_type”    =&amp;gt; $alipay_config[‘payment_type’],&lt;br&gt;        “notify_url”    =&amp;gt; $alipay_config[‘notify_url’],&lt;br&gt;        “return_url”    =&amp;gt; $alipay_config[‘return_url’],&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;quot;anti_phishing_key&amp;quot;=&amp;gt;$alipay_config[&amp;apos;anti_phishing_key&amp;apos;],
+&amp;quot;exter_invoke_ip&amp;quot;=&amp;gt;$alipay_config[&amp;apos;exter_invoke_ip&amp;apos;],
+&amp;quot;out_trade_no&amp;quot;    =&amp;gt; $out_trade_no,
+&amp;quot;subject&amp;quot;    =&amp;gt; $subject,
+&amp;quot;total_fee&amp;quot;    =&amp;gt; $total_fee,
+&amp;quot;body&amp;quot;    =&amp;gt; $body,
+&amp;quot;_input_charset&amp;quot;    =&amp;gt; trim(strtolower($alipay_config[&amp;apos;input_charset&amp;apos;]))
+//其他业务参数根据在线开发文档，添加参数.文档地址:https://doc.open.alipay.com/doc2/detail.htm?spm=a219a.7629140.0.0.kiX33I&amp;amp;treeId=62&amp;amp;articleId=103740&amp;amp;docType=1
+//如&amp;quot;参数名&amp;quot;=&amp;gt;&amp;quot;参数值&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;);&lt;br&gt;//建立请求&lt;br&gt;$alipaySubmit = new AlipaySubmit($alipay_config);&lt;br&gt;$html_text = $alipaySubmit-&amp;gt;buildRequestForm($parameter,”get”, “确认”);&lt;br&gt;echo $html_text;&lt;br&gt;die;&lt;/p&gt;
+&lt;p&gt;  需要注意的是开发支付接口需要在公网（服务器必须可以通过外网访问）才可以完成整个调试过程，如果服务器在外网访问不到，则无法接收到支付通知。&lt;/p&gt;
+&lt;p&gt;   $notify_url和$return_url 需&lt;a href=&quot;http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问&lt;/a&gt; 。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;通知 返回 （具体业务逻辑在通知返回页面处理）&lt;/p&gt;
+&lt;p&gt;参考：&lt;a href=&quot;http://www.cnblogs.com/blodfox777/archive/2009/11/03/1595223.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/blodfox777/archive/2009/11/03/1595223.html&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;a) 返回页&lt;br&gt;传递给支付宝时的return_url参数所对应的页面文件。&lt;br&gt;具备的属性：&lt;br&gt;1、支付接口中买家的购买流程已经走到支付宝里且支付宝提示支付成功时，页面会自动跳转回自身网站的这个页面里来。&lt;br&gt;2、同步的，无时差&lt;br&gt;3、获得参数的方法是用get方式获取。&lt;br&gt;4、不论跳转回来程序判断是真还是假（$_GET[‘trade_status’] == ‘TRADE_FINISHED’ || $_GET[‘trade_status’] == ‘TRADE_SUCCESS’）只跳转回来一次，不重复。&lt;br&gt;5、这个并不是支付宝服务器调用了该页面，而是通过与组合拼接各参数形成的URL链接原理等同，拼接出来的URL链接，之后程序上做自动跳转。&lt;br&gt;6、基于5的原因，该页面的程序调试可不必在服务器上而是本机上调试、运行。&lt;br&gt;b) 通知页&lt;br&gt;传递给支付宝时的notify_url参数所对应的页面文件&lt;br&gt;具备的属性：&lt;br&gt;1、这个通知页就是被支付宝调用才能启动的。&lt;br&gt;2、服务器间的互动，不像返回页肉眼可以看到，这个是看不到的。&lt;br&gt;3、获得参数的方法是用POST方式获取。&lt;br&gt;4、支付宝中的该笔交易存在，且该笔交易状态发生了变更，就会被调用。&lt;br&gt;5、被调用程序判断（if(sign = mysign and responseTxt = true)），若我们自己在该判断中有做程序编写，成功则不再被调用，不成功则会反复被调用。&lt;br&gt;6、异步的，第一次收到订单信息（以下都称之为“通知”）是与返回页近乎等同或等同的同步时间，在判断不成功的情况下，会收到第二次第三次等次数的通知，时间间隔从最先的一两分钟，到后面的几个小时。失效时间是4&lt;br&gt;8小时。&lt;br&gt;7、基于6的原因，该页面的程序调试必须在服务器上调试、运行。&lt;br&gt;8、程序编写时必须采用程序执行成功，才写页面response.Write(“success”);，不成功则写页面response.Write(“fail”); 支付宝根据success来判定是否要重新再次发送通知。&lt;br&gt;9、该页面的Html页面中必须是空白、无任何Html标签、无任何空格。&lt;/p&gt;
+&lt;p&gt;c) 在支付宝的众多接口中，不是所有的接口都拥有通知页与返回页的。&lt;br&gt;有的接口只有返回页；有的接口有通知页且用XML格式的内容显示在当前页面中；有的没有通知页也没有返回页仅仅只以XML格式的内容显示在当前页面中。所以，我们要根据各接口的技术文档与程序实例来做相应的数据处&lt;br&gt;理。&lt;br&gt;d) 大家这里存在一个疑问，一般大家的做法都是把数据库更新些在返回页中，但是很多情况下出现了订单不同步即掉单现象。这是为什么？&lt;br&gt;答：返回页是当前页面自动跳转的，这虽然跳转的反应速度不错，但人的手动关闭该页面操作绝对可以使之在没有跳转回来之前就关掉了该页面，此时原本该数据库更新的程序并没有被启动，这样直接导致了掉单，所以一般大商&lt;br&gt;户，尤其是网络游戏行业的即时到帐充值的技术做法是：返回页中有订单处理程序，通知页中也有，当返回页中的订单没做过处理时，通知页中的数据处理程序便启动；这样即可近乎100%解决掉单问题（还有种掉单原因是大家自己的服务器出现问题，比如MS3XML.DLL问题，这个问题至今没有什么可以解决的办法，只能重装或是更换服务器，也有的服务器因为中毒才导致的）。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;准备企业PID，Key，企业支付宝账号   （注意，PID只要登录就能获取，但是Key需要支付宝的【支付密码】验证后才能获取。） demo下载：&lt;a href=&quot;https://b.alipay.com/order/techService.htm。&quot; target=&quot;_bl
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>PHP写入，读取与替换文件内容</title>
@@ -1461,33 +1511,6 @@ echo $mm;
     
     
       <category term="redis" scheme="http://xwzmsdqbjzyyg.github.io/tags/redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="http://xwzmsdqbjzyyg.github.io/2016/05/19/hello-world/"/>
-    <id>http://xwzmsdqbjzyyg.github.io/2016/05/19/hello-world/</id>
-    <published>2016-05-19T06:45:26.685Z</published>
-    <updated>2016-05-30T08:51:00.117Z</updated>
-    
-    <content type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;documentation&lt;/a&gt; for more info. If you get any problems when using Hexo, you can find the answer in &lt;a href=&quot;https://hexo.io/docs/troubleshooting.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;troubleshooting&lt;/a&gt; or you can ask me on &lt;a href=&quot;https://github.com/hexojs/hexo/issues&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id=&quot;Quick-Start&quot;&gt;&lt;a href=&quot;#Quick-Start&quot; class=&quot;headerlink&quot; title=&quot;Quick Start&quot;&gt;&lt;/a&gt;Quick Start&lt;/h2&gt;&lt;h3 id=&quot;Create-a-new-post&quot;&gt;&lt;a href=&quot;#Create-a-new-post&quot; class=&quot;headerlink&quot; title=&quot;Create a new post&quot;&gt;&lt;/a&gt;Create a new post&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo new &lt;span class=&quot;string&quot;&gt;&quot;My New Post&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/writing.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Writing&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;Run-server&quot;&gt;&lt;a href=&quot;#Run-server&quot; class=&quot;headerlink&quot; title=&quot;Run server&quot;&gt;&lt;/a&gt;Run server&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo server&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/server.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Server&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;Generate-static-files&quot;&gt;&lt;a href=&quot;#Generate-static-files&quot; class=&quot;headerlink&quot; title=&quot;Generate static files&quot;&gt;&lt;/a&gt;Generate static files&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo generate&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/generating.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Generating&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;Deploy-to-remote-sites&quot;&gt;&lt;a href=&quot;#Deploy-to-remote-sites&quot; class=&quot;headerlink&quot; title=&quot;Deploy to remote sites&quot;&gt;&lt;/a&gt;Deploy to remote sites&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo deploy&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/deployment.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Deployment&lt;/a&gt;&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
-    
-    </summary>
-    
     
   </entry>
   
