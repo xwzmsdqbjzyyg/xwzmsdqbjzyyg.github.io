@@ -1,0 +1,109 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> php使用phpmailer发送邮件 · 一天进步一点</title><meta name="description" content="php使用phpmailer发送邮件 - 陈长生"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/u/1977719157" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/xwzmsdqbjzyyg/xwzmsdqbjzyyg.github.io" target="_blank" class="nav-list-link">GITHUB</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">php使用phpmailer发送邮件</h1><div class="post-info">2016年8月12日</div><div class="post-content"><p>163邮箱</p>
+<p>//引入PHPMailer的核心文件 使用require_once包含避免出现PHPMailer类重复定义的警告</p>
+<pre><code>include(&quot;PHP/class.smtp.php&quot;);
+include(&quot;PHP/class.phpmailer.php&quot;);
+</code></pre><p>//示例化PHPMailer核心类</p>
+<pre><code>$mail = new PHPMailer();
+</code></pre><p>//是否启用smtp的debug进行调试 开发环境建议开启 生产环境注释掉即可 默认关闭debug调试模式</p>
+<pre><code>$mail-&gt;SMTPDebug = 1;
+</code></pre><p>//使用smtp鉴权方式发送邮件，当然你可以选择pop方式 sendmail方式等 本文不做详解<br>//可以参考<a href="http://phpmailer.github.io/PHPMailer/当中的详细介绍" target="_blank" rel="external">http://phpmailer.github.io/PHPMailer/当中的详细介绍</a></p>
+<pre><code>$mail-&gt;isSMTP();
+</code></pre><p>//smtp需要鉴权 这个必须是true</p>
+<pre><code>$mail-&gt;SMTPAuth=true;
+</code></pre><p>//链接qq域名邮箱的服务器地址</p>
+<pre><code>$mail-&gt;Host = &apos;smtp.163.com&apos;;
+</code></pre><p>//设置使用ssl加密方式登录鉴权  因为163默认开启所以不要但是qq要这句</p>
+<pre><code>//$mail-&gt;SMTPSecure = &apos;ssl&apos;;
+</code></pre><p>//设置ssl连接smtp服务器的远程服务器端口号 可选465或587</p>
+<pre><code>$mail-&gt;Port = 25;
+</code></pre><p>//设置smtp的helo消息头 这个可有可无 内容任意</p>
+<pre><code>//$mail-&gt;Helo = &apos;Hello smtp.163.com Server&apos;;
+</code></pre><p>//设置发件人的主机域 可有可无 默认为localhost 内容任意，建议使用你的域名</p>
+<pre><code>//$mail-&gt;Hostname = &apos;jjonline.cn&apos;;
+</code></pre><p>//设置发送的邮件的编码 可选GB2312 我喜欢utf-8 据说utf8在某些客户端收信下会乱码</p>
+<pre><code>$mail-&gt;CharSet = &apos;UTF-8&apos;;
+</code></pre><p>//设置发件人姓名（昵称） 任意内容，显示在收件人邮件的发件人邮箱地址前的发件人姓名</p>
+<pre><code>$mail-&gt;FromName = &apos;发件人姓名&apos;;
+</code></pre><p>//smtp登录的账号 这里填入163邮箱账号即可</p>
+<pre><code>$mail-&gt;Username =&apos;163邮箱账号&apos;;
+</code></pre><p>//smtp登录的密码 </p>
+<pre><code>$mail-&gt;Password = &apos;授权码&apos;;
+</code></pre><p>//设置发件人邮箱地址 这里填入上述提到的“发件人邮箱”</p>
+<pre><code>$mail-&gt;From = &apos;上述提到的&quot;发件人邮箱和上面的163邮箱相同&quot;&apos;;
+</code></pre><p>//邮件正文是否为html编码 注意此处是一个方法 不再是属性 true或false</p>
+<pre><code>$mail-&gt;isHTML(true);
+</code></pre><p>//设置收件人邮箱地址 该方法有两个参数 第一个参数为收件人邮箱地址 第二参数为给该地址设置的昵称 不同的邮箱系统会自动进行处理变动 这里第二个参数的意义不大</p>
+<pre><code>$mail-&gt;addAddress(&apos;邮箱地址&apos;);
+</code></pre><p>//添加多个收件人 则多次调用方法即可</p>
+<pre><code>//$mail-&gt;addAddress(&apos;xxx@163.com&apos;,&apos;测试&apos;);
+</code></pre><p>//添加该邮件的主题</p>
+<pre><code>$mail-&gt;Subject = &apos;测试&apos;;
+</code></pre><p>//添加邮件正文 上方将isHTML设置成了true，则可以是完整的html字符串 如：使用file_get_contents函数读取本地的html文件</p>
+<pre><code>$mail-&gt;Body = &quot;测试的验证码&quot;.$token;
+</code></pre><p>//为该邮件添加附件 该方法也有两个参数 第一个参数为附件存放的目录（相对目录、或绝对目录均可） 第二参数为在邮件附件中该附件的名称</p>
+<pre><code>//$mail-&gt;addAttachment(&apos;./d.jpg&apos;,&apos;mm.jpg&apos;);
+</code></pre><p>//同样该方法可以多次调用 上传多个附件</p>
+<pre><code>//$mail-&gt;addAttachment(&apos;./Jlib-1.1.0.js&apos;,&apos;Jlib.js&apos;);
+</code></pre><p>//发送命令 返回布尔值<br>//PS：经过测试，要是收件人不存在，若不出现错误依然返回true 也就是说在发送之前 自己需要些方法实现检测该邮箱是否真实有效</p>
+<pre><code>$status = $mail-&gt;send();
+</code></pre><p>//简单的判断与提示信息</p>
+<pre><code>if($status) {
+    echo &apos;发送邮件成功&apos;;
+}else{
+    echo &apos;发送邮件失败，错误信息：&apos;.$mail-&gt;ErrorInfo;
+}
+</code></pre><p> QQ邮箱</p>
+<p>//引入PHPMailer的核心文件 使用require_once包含避免出现PHPMailer类重复定义的警告</p>
+<pre><code>include(&quot;PHP/class.smtp.php&quot;);
+include(&quot;PHP/class.phpmailer.php&quot;);
+</code></pre><p>//示例化PHPMailer核心类</p>
+<pre><code>$mail = new PHPMailer();
+</code></pre><p>//是否启用smtp的debug进行调试 开发环境建议开启 生产环境注释掉即可 默认关闭debug调试模式</p>
+<pre><code>$mail-&gt;SMTPDebug = 1;
+</code></pre><p>//使用smtp鉴权方式发送邮件，当然你可以选择pop方式 sendmail方式等 本文不做详解<br>//可以参考<a href="http://phpmailer.github.io/PHPMailer/当中的详细介绍" target="_blank" rel="external">http://phpmailer.github.io/PHPMailer/当中的详细介绍</a></p>
+<pre><code>$mail-&gt;isSMTP();
+</code></pre><p>//smtp需要鉴权 这个必须是true</p>
+<pre><code>$mail-&gt;SMTPAuth=true;
+</code></pre><p>//链接qq域名邮箱的服务器地址</p>
+<pre><code>$mail-&gt;Host = &apos;smtp.qq.com&apos;;
+</code></pre><p>//设置使用ssl加密方式登录鉴权  qq需要ssl登陆鉴权</p>
+<pre><code>$mail-&gt;SMTPSecure = &apos;ssl&apos;;
+</code></pre><p>//设置ssl连接smtp服务器的远程服务器端口号 可选465或587</p>
+<pre><code>$mail-&gt;Port = 465;
+</code></pre><p>//设置smtp的helo消息头 这个可有可无 内容任意</p>
+<pre><code>//$mail-&gt;Helo = &apos;Hello smtp.163.com Server&apos;;
+</code></pre><p>//设置发件人的主机域 可有可无 默认为localhost 内容任意，建议使用你的域名</p>
+<pre><code>//$mail-&gt;Hostname = &apos;jjonline.cn&apos;;
+</code></pre><p>//设置发送的邮件的编码 可选GB2312 我喜欢utf-8 据说utf8在某些客户端收信下会乱码</p>
+<pre><code>$mail-&gt;CharSet = &apos;UTF-8&apos;;
+</code></pre><p>//设置发件人姓名（昵称） 任意内容，显示在收件人邮件的发件人邮箱地址前的发件人姓名</p>
+<pre><code>$mail-&gt;FromName = &apos;wangkun&apos;;
+</code></pre><p>//smtp登录的账号 这里填入字符串格式的qq号即可</p>
+<pre><code>$mail-&gt;Username =&apos;只要qq号码就好&apos;;
+</code></pre><p>//smtp登录的密码 这里填入“独立密码” 若为设置“独立密码”则填入登录qq的密码 建议设置“独立密码”ssawncngrsjbbbdc</p>
+<pre><code>$mail-&gt;Password = &apos;qq获取的授权码&apos;;
+</code></pre><p>//设置发件人邮箱地址 这里填入上述提到的“发件人邮箱”</p>
+<pre><code>$mail-&gt;From = &apos;输入完整的邮箱账号&apos;;
+</code></pre><p>//邮件正文是否为html编码 注意此处是一个方法 不再是属性 true或false</p>
+<pre><code>$mail-&gt;isHTML(true);
+</code></pre><p>//设置收件人邮箱地址 该方法有两个参数 第一个参数为收件人邮箱地址 第二参数为给该地址设置的昵称 不同的邮箱系统会自动进行处理变动 这里第二个参数的意义不大</p>
+<pre><code>$mail-&gt;addAddress(&apos;收件人邮箱&apos;);
+</code></pre><p>//添加多个收件人 则多次调用方法即可</p>
+<pre><code>//$mail-&gt;addAddress(&apos;xxx@163.com&apos;,&apos;晶晶在线用户&apos;);
+</code></pre><p>//添加该邮件的主题</p>
+<pre><code>$mail-&gt;Subject = &apos;标题&apos;;
+</code></pre><p>//添加邮件正文 上方将isHTML设置成了true，则可以是完整的html字符串 如：使用file_get_contents函数读取本地的html文件</p>
+<pre><code>$mail-&gt;Body = &quot;你的内容&quot;.$token;
+</code></pre><p>//为该邮件添加附件 该方法也有两个参数 第一个参数为附件存放的目录（相对目录、或绝对目录均可） 第二参数为在邮件附件中该附件的名称</p>
+<pre><code>//$mail-&gt;addAttachment(&apos;./d.jpg&apos;,&apos;mm.jpg&apos;);
+</code></pre><p>//同样该方法可以多次调用 上传多个附件</p>
+<pre><code>//$mail-&gt;addAttachment(&apos;./Jlib-1.1.0.js&apos;,&apos;Jlib.js&apos;);
+</code></pre><p>//发送命令 返回布尔值<br>//PS：经过测试，要是收件人不存在，若不出现错误依然返回true 也就是说在发送之前 自己需要些方法实现检测该邮箱是否真实有效</p>
+<pre><code>$status = $mail-&gt;send();
+</code></pre><p>//简单的判断与提示信息</p>
+<pre><code>if($status) {
+    echo &apos;发送邮件成功&apos;;
+}else{
+    echo &apos;发送邮件失败，错误信息：&apos;.$mail-&gt;ErrorInfo;
+}
+</code></pre></div></article></div></section><footer><div class="paginator"><a href="/2016/08/04/alipay/" class="next">NEXT</a></div><div class="copyright"><p>© 2016 <a href="http://xwzmsdqbjzyyg.github.io">陈长生</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
